@@ -13,7 +13,7 @@ import socket
 import threading
 import argparse
 
-from filetransporter.util import dir_divider,anti_dir_divider,judge_unit,checkfile
+from util import dir_divider,anti_dir_divider,judge_unit,checkfile
 
 import time
 
@@ -265,9 +265,30 @@ def keyInHost():
         if len(host) > 0:
             return host, True
 
+def print_author_info(program_name):
+    print('*'*60)
+    line = 9
+    while line > 0:
+      if line == 8:
+          print('.  %s' % program_name)
+      elif line == 6:
+          print('.  @ Author: %s' % 'Capton')
+      elif line == 5:
+          print('.  @ Blog: %s' % 'http://ccapton.cn')
+      elif line == 4:
+          print('.  @ Email: %s' % 'chenweibin1125@foxmail.com')
+      elif line == 3:
+          print('.  @ Github: %s' % 'https://github.com/ccapton')
+      elif line == 2:
+          print('.  @ Project: %s' % 'https://github.com/ccapton/python-stuff/filetransport')
+      else:
+          print('.')
+      line -= 1
+    print('*'*60)
+
 if __name__ == '__main__':
 
-
+    print_author_info('FileTransporter Server Program')
     #if len(sys.argv) == 1:
     #    sys.argv.append('--help')
 
