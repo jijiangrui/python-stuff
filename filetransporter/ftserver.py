@@ -73,7 +73,7 @@ class CommandThread(threading.Thread):
 
                 self.commandMessenger = Messenger(self.socket)
                 command = self.commandMessenger.recv_msg()
-                while len(command) > 0:
+                while command and len(command) > 0:
                     if command.startswith('mission_size'):
                         self.mission_size = int(command.split(divider_arg)[1])
                         print('Mission Size: %.2f%s' % (
@@ -307,11 +307,16 @@ if __name__ == '__main__':
 
     save_path = args.dir
     if not save_path:
-        save_path = './downloads'
+        save_path = 'downloads'
+        if checkfile(save_path)[0] and checkfile(save_path)[1] == 0:
+            if not os.path.exists(save_path):os.makedirs(save_path)
         save_path_ok = True
     else:
-        save_path,save_path_ok = keyInSavePath()
-
+        if not checkfile(save_path)[0]:
+            warning('Path Doesn\'t Existed')
+            save_path,save_path_ok = keyInSavePath()
+        else:
+            save_path_ok = True
 
     if args.host:
         host = args.host

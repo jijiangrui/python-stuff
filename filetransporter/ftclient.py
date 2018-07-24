@@ -334,7 +334,7 @@ if __name__ == '__main__':
 
     port = default_data_socket_port
 
-    filepath_ok = False
+    filepath_ok = True
     port_ok = True
     host_ok = False
     if args.port and args.port > 0 :
