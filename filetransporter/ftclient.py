@@ -103,7 +103,7 @@ class CommandThread(threading.Thread):
                 print('No route to host(%s)' % self.host)
 
         except Exception:
-            print('>>>>>>>Connect Error<<<<<<<')
+            warning('>>>>>>>Connect Error<<<<<<<')
 
 
 
@@ -202,7 +202,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                 self.commandThread.socket.close()
                 self.commandThread.working = False
             else:
-                print('>>>>>>>Connect error<<<<<<<'
+                warning('>>>>>>>Connect Error<<<<<<<'
                   ' \n Please Confirm The Server Is Working Well? \n Or Check The Server\'s Address Is The Same As The Parameters You Key In\n '+
                   'The Host And Port You Key In Is ( %s , %d )' % (self.host,self.port))
         except OSError as e:

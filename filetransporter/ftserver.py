@@ -216,9 +216,12 @@ class FileMission(threading.Thread):
                         self.socket.close()
                     break
                 else:
-                    filedata = self.socket.recv(1024)
+                    try:
+                        filedata = self.socket.recv(1024)
+                    except ConnectionResetError:
+                        warning('>>>>>>>Remote Connection Disconnected<<<<<<<')
             if wrote_size < self.filesize:
-                print('>>>>>>>>>>Transportation Interrupted!<<<<<<<<<')
+                warning('>>>>>>>>>>Transportation Interrupted!<<<<<<<<<')
                 self.dataOn = False
                 self.socket.close()
                 self.commandThread.socket.close()
