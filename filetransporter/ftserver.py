@@ -16,7 +16,7 @@ import argparse
 from util import dir_divider,anti_dir_divider,judge_unit,checkfile
 
 import time
- 
+
 divider_arg = ' _*_ '
 default_data_socket_port = 9997
 default_command_socket_port = 9998
@@ -171,6 +171,7 @@ class FileMission(threading.Thread):
             self.commandThread.file_ready(self.fileinfo)
             self.write_filedata(self.fileinfo)
         else:
+            print(self.file_path)
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
             index = int(self.fileinfo.split(divider_arg)[2])
