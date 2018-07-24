@@ -162,10 +162,13 @@ class FileMission(threading.Thread):
         self.handleMission()
 
     def handleMission(self):
+
         #print(self.fileinfo)
         if self.fileinfo:
             self.filename = self.fileinfo.split(divider_arg)[0]
+            self.filename = self.filename.replace(anti_dir_divider(), dir_divider())
             self.file_path = str(self.save_path + dir_divider() + self.filename)
+            self.file_path = self.file_path.replace(anti_dir_divider(), dir_divider())
             self.filesize = int(self.fileinfo.split(divider_arg)[1])
         if self.filesize > 0:
             self.commandThread.file_ready(self.fileinfo)
@@ -188,7 +191,6 @@ class FileMission(threading.Thread):
 
     def write_filedata(self,fileinfo):
         print('Start Transporting :%s %.2f%s' % (self.filename,judge_unit(self.filesize)[0],judge_unit(self.filesize)[1]))
-        self.file_path = self.file_path.replace(anti_dir_divider(),dir_divider())
         with open(self.file_path,'wb') as f:
             wrote_size = 0
             filedata = self.socket.recv(1024)
