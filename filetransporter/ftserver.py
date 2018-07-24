@@ -171,6 +171,7 @@ class FileMission(threading.Thread):
             self.commandThread.file_ready(self.fileinfo)
             self.write_filedata(self.fileinfo)
         else:
+            self.file_path = self.file_path.encode('gb2312').decode('utf-8')
             print(self.file_path)
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
