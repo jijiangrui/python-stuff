@@ -11,10 +11,9 @@
 import sys,os
 import socket
 import threading
-import platform
 import argparse
 
-from  util import dir_divider,anti_dir_divider,judge_unit,checkfile
+from filetransporter.util import dir_divider,anti_dir_divider,judge_unit,checkfile
 
 import time
 

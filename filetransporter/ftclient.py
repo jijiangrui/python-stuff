@@ -8,15 +8,13 @@
 # @Github  : https://github.com/ccapton
 # @Email   : chenweibin1125@foxmail.com
 
-import sys,os
+import sys
 import socket
 import threading
-import platform
 import argparse
-import time
 
-from list_file import *
-from util import judge_unit,relative_path,dir_divider,checkfile
+from filetransporter.list_file import *
+from filetransporter.util import judge_unit,relative_path,dir_divider,checkfile
 
 
 divider_arg =  ' _*_ '
