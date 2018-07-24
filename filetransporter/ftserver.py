@@ -280,7 +280,7 @@ def print_author_info(program_name):
       elif line == 3:
           print('.  @ Github: %s' % 'https://github.com/ccapton')
       elif line == 2:
-          print('.  @ Project: %s' % 'https://github.com/ccapton/python-stuff/filetransport')
+          print('.  @ Project: %s' % 'https://github.com/ccapton/python-stuff/filetransporter')
       else:
           print('.')
       line -= 1
