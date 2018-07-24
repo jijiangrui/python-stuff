@@ -139,10 +139,10 @@ class Client(threading.Thread , FileFinder.FinderCallback):
     def onFindDir(self,dir_path):
         global msg_index
         msg_index += 1
-        print('Creating Dir '+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,dir_path))
+        print('Creating Dir '+ os.path.basename(self.rootpath)+'/'+relative_path(self.rootpath,dir_path))
         self.filename = dir_path
         self.filesize = -1
-        self.commandThread.send_fileinfo(os.path.basename(self.rootpath) + dir_divider()
+        self.commandThread.send_fileinfo(os.path.basename(self.rootpath) + '/'
                                                +relative_path(self.rootpath,dir_path)+ divider_arg
                                                +str(-1)+divider_arg+str(msg_index))
 
@@ -150,14 +150,14 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         global msg_index
         msg_index += 1
         self.sumsize += size
-        print('Transporting File '+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,file_path) +
+        print('Transporting File '+ os.path.basename(self.rootpath)+'/'+relative_path(self.rootpath,file_path) +
               ' '+ '%.2f%s' % (judge_unit(size)[0],judge_unit(size)[1]))
         self.filename = file_path
         self.filesize = size
         if (os.path.isfile(file_path) and relative_path(self.rootpath,file_path) == ''):
             self.commandThread.send_fileinfo(os.path.basename(file_path) + divider_arg + str(size)+divider_arg+str(msg_index))
         else:
-            self.commandThread.send_fileinfo(os.path.basename(self.rootpath)+ dir_divider()
+            self.commandThread.send_fileinfo(os.path.basename(self.rootpath)+ '/'
                                                +relative_path(self.rootpath,file_path)+ divider_arg +str(size)
                                                    + divider_arg + str(msg_index))
 
