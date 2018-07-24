@@ -13,8 +13,8 @@ import socket
 import threading
 import argparse
 
-from filetransporter.list_file import *
-from filetransporter.util import judge_unit,relative_path,dir_divider,checkfile
+from list_file import *
+from util import judge_unit,relative_path,dir_divider,checkfile
 
 
 divider_arg =  ' _*_ '
