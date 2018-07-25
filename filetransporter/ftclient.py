@@ -14,11 +14,14 @@ import threading
 import argparse
 
 from list_file import *
-from util import judge_unit,relative_path,dir_divider,checkfile
+from util import relative_path,dir_divider,checkfile,formated_size
 
 from  language_words import languageSelecter
 
 divider_arg =  ' _*_ '
+
+right_arrows = '>'*10
+left_arrows = '<'*10
 
 msg_index = 0
 
@@ -89,7 +92,7 @@ class CommandThread(threading.Thread):
                     command = self.messanger.recv_msg()
                     if not self.working:
                         if sumsize == self.dataThread.sumsize:
-                            print('>>>>>>>>>>%s<<<<<<<<<'% dict('mc'))
+                            print(right_arrows+dict('mc')+left_arrows)
                         self.socket.close()
             except ConnectionResetError as e:
                 self.working = False
@@ -99,7 +102,7 @@ class CommandThread(threading.Thread):
                     self.dataThread.filefinder.off = True
                 self.socket.close()
                 self.dataThread.socket.close()
-                print('>>>>>>>%s<<<<<<<' % dict('ci'))
+                print(right_arrows+dict('ci')+left_arrows)
                 print(' %s...' % dict('pttmoa'))
             except OSError as e:
                 print('%s(%s)' % (dict('nrth'),self.host))
@@ -108,7 +111,7 @@ class CommandThread(threading.Thread):
                 print(e)
 
         except Exception:
-            warning('>>>>>>>%s<<<<<<<' % dict('ce'))
+            warning(right_arrows+dict('ce')+left_arrows)
 
 
 
@@ -156,7 +159,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         msg_index += 1
         self.sumsize += size
         print(dict('tf')+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,file_path) +
-              ' '+ '%.2f%s' % (judge_unit(size)[0],judge_unit(size)[1]))
+              ' '+ formated_size(size))
         self.filename = file_path
         self.filesize = size
         if (os.path.isfile(file_path) and relative_path(self.rootpath,file_path) == ''):
@@ -196,19 +199,19 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         try:
             self.socket.connect((self.host, self.port))
             print(bytes(self.socket.recv(1024)).decode(encoding='utf8'))
-            print('>>>>>>>%s<<<<<<<y'%dict('ms'))
+            print(right_arrows+dict('ms')+left_arrows)
             print('-'*30)
             return True
         except ConnectionError as e:
             if isCommandTConnected:
                 print('%s %d' % (dict('tsbd'),self.port))
-                print('>>>>>>>%s<<<<<<<' % dict('cd'))
+                print(right_arrows+dict('cd')+left_arrows)
                 self.commandThread.messanger.send_msg('[COMMAND CLOSE]')
                 self.commandThread.socket.close()
                 self.commandThread.working = False
             else:
-                warning('>>>>>>>%s<<<<<<<' % dict('ce')+
-                  ' \n  %s\n %s\n ' % (dict('pct'),dict('dcts'))+
+                warning(right_arrows+dict('ce')+ left_arrows+
+                  ' \n %s\n %s\n ' % (dict('pct'),dict('octs'))+
                   '%s ( %s , %d )' % (dict('thap'),self.host,self.port))
         except OSError as e:
             print('%s(%s)' % (dict('nrth'),self.host))
@@ -225,12 +228,8 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                 self.mission_read_size += tempsize
                 try:
                    self.socket.send(filedata)
-                   readed_show = '%.2f%s/%.2f%s' % (judge_unit(readed_size)[0], judge_unit(readed_size)[1],
-                                                    judge_unit(self.filesize)[0], judge_unit(self.filesize)[1])
-                   total_readed_show = '%.2f%s/%.2f%s' % (judge_unit(self.mission_read_size)[0],
-                                                          judge_unit(self.mission_read_size)[1],
-                                                          judge_unit(sumsize)[0],
-                                                          judge_unit(sumsize)[1])
+                   readed_show = '%s/%s' % (formated_size(readed_size),formated_size(self.filesize))
+                   total_readed_show = '%s/%s' % (formated_size(self.mission_read_size),formated_size(sumsize))
                    current_filename = os.path.basename(self.filename) + ' '
                    sys.stdout.write(current_filename + readed_show + ' | %.2f%%  >>>%s %s | %.2f%%' %
                                     (float(readed_size / self.filesize * 100),
@@ -243,7 +242,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                             self.filefinder.finderCallback = None
                             self.filefinder.recycle = True
                             self.filefinder.off = True
-                        print('>>>>>>>%s<<<<<<<' % dict('rcd'))
+                        print(right_arrows+dict('rcd')+left_arrows)
                         self.once = False
 
                 filedata = f.read(1024)
@@ -299,6 +298,12 @@ def keyInHost():
         if len(host) > 0:
             return host, True
 
+def warning(text):
+    print('[%s] ' % dict('wa')+text)
+
+
+def dict(key):
+   return languageSelecter.dict(key)
 
 def print_author_info(program_name):
     print('*'*60)
@@ -320,14 +325,6 @@ def print_author_info(program_name):
           print('。')
       line -= 1
     print('*'*60)
-
-def warning(text):
-    print('[%s] ' % dict('wa')+text)
-
-
-
-def dict(key):
-   return languageSelecter.dict(key)
 
 if __name__ == '__main__':
     # python ft_client -f /Users/capton/desktop/test.mp4 -h 127.0.0.1 -p 5050'
@@ -383,7 +380,7 @@ if __name__ == '__main__':
         else:
             file_type = dict('td')
         warning('%s %s' % (dict('ya'),file_type))
-        print(filepath + ' | %s%s : %.2f%s' % (dict('total'),dict('si'),judge_unit(sumsize)[0],judge_unit(sumsize)[1]))
+        print(filepath + ' | %s%s : %s' % (dict('total'),dict('si'),formated_size(sumsize)))
 
         confirm = input('%s(Y/N):'% dict('ct'))
         while True:

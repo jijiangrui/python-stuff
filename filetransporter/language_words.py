@@ -62,11 +62,11 @@ en = {
     'thtp':'The HostIp That Program Data Will Transport To',
     'ctcs':'Connected To Command Socket ',
     'cara':'Can\'t Assisn Requested Address',
-    'fsd':'File save dir: ',
+    'fsd':'File Save Dir: ',
     'shs':"Server Started",
     'ra':"Server is Running at",
     'wfft':"Waiting For Transportation",
-    'nc':'New Client:',
+    'nc':'New Client',
     'ctds':'Connected to data socket :',
     'aoc':'An Old Connection Is Trying To Restored,But Failed',
     'st':'Start Transporting :',
@@ -108,7 +108,7 @@ cn = {
     'ms':'任务开始',
     'tsbd':'服务端正在工作，但是数据套接字没有工作在端口上',
     'pct':'请确认服务端是否正常运行',
-    'octs':'或者确认服务端的地址是否和您输入的一致',
+    'octs':'或者确认服务端的地址和端口号是否和您输入的一致',
     'thap':'您输入的主机和端口号是',
     'ftcp':'文件传输程序客户端',
     'ftsp':'文件传输程序服务端',
@@ -131,10 +131,10 @@ cn = {
     'shs':"服务开启",
     'ra':"程序运行在",
     'wfft':"等待文件传输过来",
-    'nc':'新客户进入：',
+    'nc':'新客户进入',
     'ctds':'连接到数据套接字：',
     'aoc':'一个旧连接正在尝试恢复，但失败了',
-    'st':'开始传输',
+    'st':'开始传输 ',
     'dd':'下载完毕',
     'pidp':'请输入文件夹路径',
     'dpif':'这个路径指向一个文件',
@@ -144,6 +144,7 @@ cn = {
 
 class LanguageSelecter:
     def __init__(self):
+        print('LanguageSelecter create')
         self.lang = 'cn'
     def select_language(self,lang = 'cn'):
         self.lang = lang

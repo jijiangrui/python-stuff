@@ -13,15 +13,19 @@ import socket
 import threading
 import argparse
 
-from util import dir_divider,anti_dir_divider,judge_unit,checkfile
+from util import dir_divider,anti_dir_divider,judge_unit,checkfile,print_author_info
 import time
 
 from language_words import languageSelecter
 
 divider_arg = ' _*_ '
+right_arrows = '>'*10
+left_arrows = '<'*10
+
 default_data_socket_port = 9997
 default_command_socket_port = 9998
 
+# socket封装类，用于简化socket输出编码的str内容的步骤
 class Messenger:
     def __init__(self,socket):
         self.socket = socket
@@ -82,7 +86,7 @@ class CommandThread(threading.Thread):
                     elif command == '[COMMAND CLOSE]':
                         self.dataOn = False
                         time.sleep(0.3)
-                        print('>>>>>>>%s<<<<<<<' % dict('rcd'))
+                        print(right_arrows+dict('rcd')+left_arrows)
                     else:
                         self.fileMission = FileMission(self.dataThread.socket, self, self.dataThread.save_path, command)
                         self.fileMission.start()
@@ -92,19 +96,23 @@ class CommandThread(threading.Thread):
             warning(dict('cara'))
             self.wait_client_flag = False
 
+    # 告诉客户该文件已经准备好接受数据了
     def file_ready(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'ready')
 
+    # 告诉客户该文件已经传输完毕了
     def file_transportover(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'file_transport_ok')
 
+    # 告诉客户该文件夹已经创建好了
     def dir_created(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'dir_create_ok')
 
+    # 告诉客户根文件夹已经创建好了
     def rootdir_create(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'rootdir_create_ok')
 
-
+# 服务线程类 ，在此处理数据套接字，并 和指令线程类CommandThread相互调用完成传输任务
 class Server(threading.Thread):
     def __init__(self,save_path,host = None,port = 9997):
         threading.Thread.__init__(self)
@@ -113,9 +121,10 @@ class Server(threading.Thread):
         self.port = int(port)
         self.wait_client_flag = True
         if not os.path.exists(self.save_path):
-            os.makedirs(self.save_path)
+            os.makedirs(self.save_path) # 若文件保存的根目录不存在，则创建它
         print(dict('fsd') + self.save_path)
 
+    # 设置指令线程实例
     def setCommandThread(self,commandThread):
         self.commandThread = commandThread
 
@@ -123,6 +132,7 @@ class Server(threading.Thread):
         self.start_server_socket()
         self.wait_client()
 
+    # 开启socket监听
     def start_server_socket(self):
         self.ssocket = socket.socket()
         self.ssocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -135,6 +145,7 @@ class Server(threading.Thread):
             self.wait_client_flag = False
             pass
 
+    # 阻塞线程 循环接收新的客户端数据套接字连接
     def wait_client(self):
         self.ssocket.listen(5)  # 等待客户端连接
         while self.wait_client_flag:
@@ -149,7 +160,7 @@ class Server(threading.Thread):
                 print(dict('aoc')+'\n')
                 print(dict('wfft')+'...')
 
-
+# 任务线程类，复制文件的下载，并和数据线程类Server、指令线程类CommandThread通信
 class FileMission(threading.Thread):
     def __init__(self,socket,commandThread,save_path,fileinfo):
         threading.Thread.__init__(self)
@@ -162,34 +173,32 @@ class FileMission(threading.Thread):
     def run(self):
         self.handleMission()
 
+     # 分析客户端传过来的文件信息（若是文件夹，则新建文件夹；若是文件，则准备从套接字socket对象中读取数据写入新文件中）
     def handleMission(self):
-
-        #print(self.fileinfo)
-        if self.fileinfo:
+        if self.fileinfo:  # 解析fileinfo文本，分析出文件夹、文件信息
             self.filename = self.fileinfo.split(divider_arg)[0]
             self.filename = self.filename.replace(anti_dir_divider(), dir_divider())
             self.file_path = str(self.save_path + dir_divider() + self.filename)
             self.file_path = self.file_path.replace(anti_dir_divider(), dir_divider())
             self.filesize = int(self.fileinfo.split(divider_arg)[1])
-        if self.filesize > 0:
+        if self.filesize > 0: # 若是文件，则用套接字发送指令通知客户端已准备接收数据
             self.commandThread.file_ready(self.fileinfo)
             self.write_filedata(self.fileinfo)
-        else:
-            #self.file_path = self.file_path.encode('gb2312').decode('utf-8')
-            #print(self.file_path)
+        else:                 # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
             index = int(self.fileinfo.split(divider_arg)[2])
             dir = self.fileinfo.split(divider_arg)[0]
 
             if index == 0:
-                print('>>>>>>>%s!<<<<<<<' % dict('ms'))
+                print(right_arrows+dict('ms')+left_arrows)
                 print('-' * 30)
                 self.commandThread.rootdir_create(self.fileinfo)
             else:
                 self.commandThread.dir_created(self.fileinfo)
             print(dict('cd')+': ' + dir)
 
+     # 读取socket原始数据，写入文件中
     def write_filedata(self,fileinfo):
         print(dict('st')+'%s %.2f%s' % (self.filename,judge_unit(self.filesize)[0],judge_unit(self.filesize)[1]))
         with open(self.file_path,'wb') as f:
@@ -223,9 +232,9 @@ class FileMission(threading.Thread):
                     try:
                         filedata = self.socket.recv(1024)
                     except ConnectionResetError:
-                        warning('>>>>>>>%s<<<<<<<' % dict('rcd'))
+                        warning(right_arrows+ dict('rcd')+left_arrows)
             if wrote_size < self.filesize:
-                warning('>>>>>>>>>>%s!<<<<<<<<<' % dict('ci'))
+                warning(right_arrows+dict('ci')+left_arrows)
                 self.dataOn = False
                 self.socket.close()
                 self.commandThread.socket.close()
@@ -236,7 +245,7 @@ class FileMission(threading.Thread):
             if self.commandThread.wrote_size == self.commandThread.mission_size and self.commandThread.wrote_size != 0:
                 self.commandThread.wrote_size = 0
                 self.commandThread.mission_size = 0
-                print('>>>>>>>>>>%s!<<<<<<<<<' % dict('mc'))
+                print(right_arrows+dict('mc')+left_arrows)
                 print(dict('ra')+' (%s,%d)' % (self.commandThread.dataThread.host, self.commandThread.dataThread.port))
                 print(dict('wfft')+'...')
 
