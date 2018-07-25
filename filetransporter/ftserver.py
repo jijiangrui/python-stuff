@@ -188,7 +188,7 @@ class FileMission(threading.Thread):
                 self.commandThread.rootdir_create(self.fileinfo)
             else:
                 self.commandThread.dir_created(self.fileinfo)
-            print(+dict('cd')+': ' + dir)
+            print(dict('cd')+': ' + dir)
 
     def write_filedata(self,fileinfo):
         print(dict('st')+'%s %.2f%s' % (self.filename,judge_unit(self.filesize)[0],judge_unit(self.filesize)[1]))
