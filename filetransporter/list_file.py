@@ -12,6 +12,9 @@ import os,time
 # 文件、文件夹寻找类 (阻塞型)
 # 阻塞的设计： 为了等待调用者的耗时操作【否则很快就完成了文件的遍历任务，调用者达不到顺序操作文件(夹)的意图】
 #
+from language_words import languageSelecter
+
+
 class FileFinder:
    def __init__(self,finderCallback):
        self.finderCallback = finderCallback
@@ -67,6 +70,9 @@ class FileFinder:
                    # 递归调用（当遍历到文件夹时，继续遍历，直到当前文件夹下没有文件夹为止）
                    self.list_flie(path)
 
+def dict(key):
+   return languageSelecter.dict(key)
+
 # 文件、文件夹寻找类2（快速寻找，无阻塞）
 class FileFinder_Fast:
    def __init__(self,finderCallback):
@@ -89,7 +95,7 @@ class FileFinder_Fast:
 
    def list_flie(self,root_dir):
        if  os.path.isfile(root_dir):
-           if self.debug:print('Found File: %s' % root_dir)
+           if self.debug:print('%s%s' % (dict('ff'),root_dir))
            if self.finderCallback:
                self.finderCallback.onFindFile(root_dir,os.path.getsize(root_dir))
                self.finderCallback.onRefresh()
@@ -98,7 +104,7 @@ class FileFinder_Fast:
            for i in range(0, len(list)):
                path = os.path.join(root_dir, list[i])
                if os.path.isfile(path):
-                   if self.debug:print('Found File: %s' % path)
+                   if self.debug:print('%s%s' % (dict('ff'),path))
                    if self.finderCallback:
                        self.finderCallback.onFindFile(path,os.path.getsize(path))
                        self.finderCallback.onRefresh()
@@ -106,7 +112,7 @@ class FileFinder_Fast:
                    if self.finderCallback:
                        self.finderCallback.onFindDir(path)
                        self.finderCallback.onRefresh()
-                   if self.debug:print('Found Dir: %s' % path)
+                   if self.debug:print('%s%s' % (dict('fd'),path))
                    self.list_flie(path)
 
 class MyfinderCallback(FileFinder.FinderCallback):

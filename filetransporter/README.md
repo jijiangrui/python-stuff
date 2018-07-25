@@ -1,6 +1,6 @@
 # FileTransporter
 
-###这是一个基于socket(TCP)的文件(夹)传输程序
+### 这是一个基于socket(TCP)的文件(夹)传输程序
 
 ### `预览效果`
 ![](resource/runserver2.jpeg)
@@ -33,8 +33,7 @@ python3 ftserver.py
 python3 ftserver.py -i 192.168.1.100 -p 9909 -d /users/Capton/downloads
 ```
 **效果**
-![](resource/runserver.jpeg)
-<img width="600" src="#resource/runserver.jpeg"/> 
+![](resource/runserver.jpeg) 
 
 
 ### 二 、ftclient.py ：**发送端程序**
@@ -58,5 +57,4 @@ python3 ftclient.py -i <主机名(ip)> -f <文件（夹）路径>
 python3 ftclient.py -i 192.168.1.100 -p 9909 -f /users/Capton/desktop/test
 ```
 **效果**
-![](resource/runclient.jpg)
-<img width="600" src="#resource/runclient.jpg"/> 
+![](resource/runclient.jpg) 

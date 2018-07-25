@@ -16,6 +16,7 @@ import argparse
 from list_file import *
 from util import judge_unit,relative_path,dir_divider,checkfile
 
+from  language_words import languageSelecter
 
 divider_arg =  ' _*_ '
 
@@ -37,8 +38,8 @@ class Messenger:
             try:
                self.socket.send(bytes(msg ,encoding='utf8'))
             except Exception as e:
-                if self.send_debug:print('connect error')
-        elif self.send_debug:print('socket is none')
+                if self.send_debug:print(dict('ce'))
+        elif self.send_debug:print(dict('sin'))
         return self
 
     def recv_msg(self):
@@ -47,8 +48,8 @@ class Messenger:
                 msg = self.socket.recv(1024)
                 return bytes(msg).decode('utf8')
             except Exception as e:
-                if self.recev_debug:print('connect error')
-        elif self.recev_debug:  print('socket is none')
+                if self.recev_debug:print(dict('ce'))
+        elif self.recev_debug:  print(dict('sin'))
         return None
 
 class CommandThread(threading.Thread):
@@ -76,7 +77,8 @@ class CommandThread(threading.Thread):
                 command = bytes(self.socket.recv(1024)).decode(encoding='utf8')
                 if self.working:
                    print(command)
-                self.messanger.send_msg('mission_size' + divider_arg + str(self.mission_size))
+                self.messanger.send_msg(
+                    'mission_size'+ divider_arg + str(self.mission_size))
                 while self.working and command and len(command) > 0:
                     if command.endswith('rootdir_create_ok'):
                         self.dataThread.waitingCreateDir = False
@@ -87,7 +89,7 @@ class CommandThread(threading.Thread):
                     command = self.messanger.recv_msg()
                     if not self.working:
                         if sumsize == self.dataThread.sumsize:
-                            print('>>>>>>>>>>Mission Complished!<<<<<<<<<')
+                            print('>>>>>>>>>>%s<<<<<<<<<'% dict('mc'))
                         self.socket.close()
             except ConnectionResetError as e:
                 self.working = False
@@ -97,13 +99,16 @@ class CommandThread(threading.Thread):
                     self.dataThread.filefinder.off = True
                 self.socket.close()
                 self.dataThread.socket.close()
-                print('>>>>>>>Connection Interrupted<<<<<<<')
-                print(' Please Try The Mission Once Againg...')
+                print('>>>>>>>%s<<<<<<<' % dict('ci'))
+                print(' %s...' % dict('pttmoa'))
             except OSError as e:
-                print('No route to host(%s)' % self.host)
+                print('%s(%s)' % (dict('nrth'),self.host))
+
+            except Exception as e:
+                print(e)
 
         except Exception:
-            warning('>>>>>>>Connect Error<<<<<<<')
+            warning('>>>>>>>%s<<<<<<<' % dict('ce'))
 
 
 
@@ -139,7 +144,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
     def onFindDir(self,dir_path):
         global msg_index
         msg_index += 1
-        print('Creating Dir '+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,dir_path))
+        print(dict('cd')+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,dir_path))
         self.filename = dir_path
         self.filesize = -1
         self.commandThread.send_fileinfo(os.path.basename(self.rootpath) + dir_divider()
@@ -150,7 +155,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         global msg_index
         msg_index += 1
         self.sumsize += size
-        print('Transporting File '+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,file_path) +
+        print(dict('tf')+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,file_path) +
               ' '+ '%.2f%s' % (judge_unit(size)[0],judge_unit(size)[1]))
         self.filename = file_path
         self.filesize = size
@@ -173,7 +178,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             self.singFile = False
             self.findfileOver = False
             if self.connect_to_server():
-                print('Creating Dir ' + os.path.basename(self.filepath))
+                print(dict('cd') + os.path.basename(self.filepath))
                 self.commandThread.send_command(os.path.basename(self.filepath) + divider_arg +'-1' +divider_arg + str(msg_index))
                 while self.waitingCreateDir:
                     time.sleep(0.1)
@@ -184,29 +189,29 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                 self.findfileOver = True
 
         elif not checkfile(self.filepath)[0]:
-            print('Please input correct file path')
+            print(dict('picf'))
 
     def connect_to_server(self):
         self.socket = socket.socket()
         try:
             self.socket.connect((self.host, self.port))
             print(bytes(self.socket.recv(1024)).decode(encoding='utf8'))
-            print('Mission Start!')
+            print('>>>>>>>%s<<<<<<<y'%dict('ms'))
             print('-'*30)
             return True
         except ConnectionError as e:
             if isCommandTConnected:
-                print('The Server Is Working,But Data Socket Is Not Working On Port %d' % self.port)
-                print('>>>>>>>Connection Disconnected<<<<<<<')
+                print('%s %d' % (dict('tsbd'),self.port))
+                print('>>>>>>>%s<<<<<<<' % dict('cd'))
                 self.commandThread.messanger.send_msg('[COMMAND CLOSE]')
                 self.commandThread.socket.close()
                 self.commandThread.working = False
             else:
-                warning('>>>>>>>Connect Error<<<<<<<'
-                  ' \n Please Confirm The Server Is Working Well? \n Or Check The Server\'s Address Is The Same As The Parameters You Key In\n '+
-                  'The Host And Port You Key In Is ( %s , %d )' % (self.host,self.port))
+                warning('>>>>>>>%s<<<<<<<' % dict('ce')+
+                  ' \n  %s\n %s\n ' % (dict('pct'),dict('dcts'))+
+                  '%s ( %s , %d )' % (dict('thap'),self.host,self.port))
         except OSError as e:
-            print('No route to host(%s)' % self.host)
+            print('%s(%s)' % (dict('nrth'),self.host))
         return False
 
 
@@ -227,8 +232,9 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                                                           judge_unit(sumsize)[0],
                                                           judge_unit(sumsize)[1])
                    current_filename = os.path.basename(self.filename) + ' '
-                   sys.stdout.write(current_filename + readed_show + ' | %.2f%%  >>>Total %s | %.2f%%' %
+                   sys.stdout.write(current_filename + readed_show + ' | %.2f%%  >>>%s %s | %.2f%%' %
                                     (float(readed_size / self.filesize * 100),
+                                     dict('total'),
                                      total_readed_show,
                                      float(self.mission_read_size / sumsize * 100)) + '\r')
                 except BrokenPipeError as e:
@@ -237,13 +243,13 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                             self.filefinder.finderCallback = None
                             self.filefinder.recycle = True
                             self.filefinder.off = True
-                        print('>>>>>>>Remote Conenction Destoried<<<<<<<')
+                        print('>>>>>>>%s<<<<<<<' % dict('rcd'))
                         self.once = False
 
                 filedata = f.read(1024)
         print()
         if  readed_size == self.filesize and readed_size == 0:
-            print(os.path.basename(self.filename) + ' finished')
+            print(os.path.basename(self.filename) + ' %s' % dict('fi') )
         print('—'*30)
         if self.singFile:
             self.commandThread.send_command('[COMMAND CLOSE]')
@@ -266,18 +272,18 @@ class MyfinderCallback(FileFinder_Fast.FinderCallback):
 
 def keyInPort():
     while True:
-        temp_port = input('Input Port : ')
+        temp_port = input(dict('ip'))
         if int(temp_port) > 0 and int(temp_port) != default_command_socket_port:
             return (int(temp_port),True)
         elif int(temp_port) <= 0:
-            warning('Port Must Be Positive Number!')
+            warning(dict('pmb'))
         elif int(temp_port) == default_command_socket_port:
-            warning('Port %d is disabled,please key in other number' % default_command_socket_port)
+            warning('%s %d %s,%s' % (dict('po'),dict('id'),default_command_socket_port,dict('pki')))
 
 
 def keyInFilePath():
     while True:
-        filepath = input('Please Input File Or Dir Path:')
+        filepath = input(dict('pif'))
         if filepath.endswith(dir_divider()):
             filepath2 = filepath[:len(filepath)-1]
         else:
@@ -285,11 +291,11 @@ def keyInFilePath():
         if checkfile(filepath2)[0]:
             return filepath2, True
         else:
-            print('Path Doesn\'t Exist!')
+            print(dict('pde'))
 
 def keyInHost():
     while True:
-        host = input('Please Input The Target Host:')
+        host = input(dict('pit'))
         if len(host) > 0:
             return host, True
 
@@ -299,36 +305,41 @@ def print_author_info(program_name):
     line = 9
     while line > 0:
       if line == 8:
-          print('.  %s' % program_name)
+          print('。  %s' % program_name)
       elif line == 6:
-          print('.  @ Author: %s' % 'Capton')
+          print('。  @ %s: Capton' % dict('Author'))
       elif line == 5:
-          print('.  @ Blog: %s' % 'http://ccapton.cn')
+          print('。  @ %s: http://ccapton.cn' % dict('Blog'))
       elif line == 4:
-          print('.  @ Email: %s' % 'chenweibin1125@foxmail.com')
+          print('。  @ %s: chenweibin1125@foxmail.com' % dict('Email'))
       elif line == 3:
-          print('.  @ Github: %s' % 'https://github.com/ccapton')
+          print('。  @ %s: https://github.com/ccapton' % dict('Github'))
       elif line == 2:
-          print('.  @ Project: %s' % 'https://github.com/ccapton/python-stuff/filetransport')
+          print('。  @ %s: https://github.com/Ccapton/python-stuff/tree/master/filetransporter' % dict('Project'))
       else:
-          print('.')
+          print('。')
       line -= 1
     print('*'*60)
 
 def warning(text):
-    print('[Warning] '+text)
+    print('[%s] ' % dict('wa')+text)
+
+
+
+def dict(key):
+   return languageSelecter.dict(key)
 
 if __name__ == '__main__':
     # python ft_client -f /Users/capton/desktop/test.mp4 -h 127.0.0.1 -p 5050'
 
     # if len(sys.argv) == 1:
     #    sys.argv.append('--help')
-    print_author_info('FileTransporter Client Program')
+    print_author_info(dict('ftcp'))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--filepath', required=False, help=('the path which file will send'))
-    parser.add_argument('-p', '--port', required=False, help=('the port that program data will transport'),type = int)
-    parser.add_argument('-i', '--host', required=False, help=('the hostip that program data will transport to'),type = str)
+    parser.add_argument('-f', '--filepath', required=False, help=(dict('tpws')))
+    parser.add_argument('-p', '--port', required=False, help=(dict('tptp')),type = int)
+    parser.add_argument('-i', '--host', required=False, help=(dict('thtp')),type = str)
 
     args = parser.parse_args()
 
@@ -340,17 +351,17 @@ if __name__ == '__main__':
     if args.port and args.port > 0 :
         port = args.port
         if port == default_command_socket_port:
-            warning('Port %d is disabled,please key in other number' % default_command_socket_port)
+            warning('%s %d %s,%s' % (dict('po'),default_command_socket_port,dict('id'),dict('pki')))
             port , port_ok = keyInPort()
     elif args.port and args.port <=0:
-        warning('Port Must Be Positive Number!')
+        warning(dict('pmb'))
         port, port_ok = keyInPort()
 
     filepath = args.filepath
     if not filepath:
         filepath , filepath_ok = keyInFilePath()
     elif not checkfile(args.filepath)[0]:
-        warning('Path Doesn\'t Exist！')
+        warning(dict('pde'))
         filepath , filepath_ok = keyInFilePath()
 
     host = args.host
@@ -362,19 +373,19 @@ if __name__ == '__main__':
     if port_ok and filepath_ok and host_ok:
         findercallback = MyfinderCallback()
         if not checkfile(filepath)[1]:
-           print('Finding Files In %s' % filepath)
+           print('%s %s' % (dict('ffi'),filepath))
         FileFinder_Fast(findercallback).list_flie(filepath)
         global sumsize
         sumsize = findercallback.sumsize
         file_type = ''
         if checkfile(filepath)[1]:
-            file_type = 'The File :'
+            file_type = dict('tf')
         else:
-            file_type = 'The Dir (And All Files In This Dir):'
-        warning('You Are Going To Transport %s' % file_type)
-        print(filepath + ' | Totoal Size : %.2f%s' % (judge_unit(sumsize)[0],judge_unit(sumsize)[1]))
+            file_type = dict('td')
+        warning('%s %s' % (dict('ya'),file_type))
+        print(filepath + ' | %s%s : %.2f%s' % (dict('total'),dict('si'),judge_unit(sumsize)[0],judge_unit(sumsize)[1]))
 
-        confirm = input('Continue To Transport? (Y/N):')
+        confirm = input('%s(Y/N):'% dict('ct'))
         while True:
             if confirm == 'y' or confirm == 'Y' or confirm == 'Yes'.upper() or confirm == 'yes'.lower():
                 client = Client(host, port)
@@ -387,7 +398,7 @@ if __name__ == '__main__':
                 commandThread.start()
                 break
             elif confirm == 'n' or confirm == 'N' or confirm == 'No'.upper() or confirm == 'no'.lower():
-                warning('Give Up Mission...Continue')
+                warning(dict('gvm'))
                 break
-            confirm = input('Continue To Transport? (Y/N):')
+            confirm = input('%s(Y/N):' % dict('ct'))
 
