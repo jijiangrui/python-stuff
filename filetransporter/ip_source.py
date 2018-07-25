@@ -151,8 +151,8 @@ def is_chinese_user():
 
 
 if __name__ == '__main__':
-    #print(is_chinese_user())
-    print('美国'.find('China'))
+    print(is_chinese_user())
+    #print('美国'.find('China'))
 
 
 
