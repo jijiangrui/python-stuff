@@ -8,7 +8,7 @@
 # @Github  : https://github.com/ccapton
 # @Email   : chenweibin1125@foxmail.com
 
-from ip_source import is_chindes_user
+from ip_source import is_chinese_user
 
 en = {
     'po':'Port',
@@ -149,7 +149,7 @@ class LanguageSelecter:
         self.lang = lang
 
     def auto_judge(self):
-        if is_chindes_user():self.select_language('cn')
+        if is_chinese_user():self.select_language('cn')
         else:self.select_language('en')
 
     def dict(self,key):
