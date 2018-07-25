@@ -130,16 +130,12 @@ class Finder2(IpLocationFinder):
         try:
            source = self.get_response()
            soup = BeautifulSoup(source, 'html.parser')
-           #well_text = soup.find('div', attrs={'class': 'well'})
-           print(soup.text)
-           print(soup.text.find('China'))
            if soup.text.find('China') != -1:
                return True
            else:
                return False
         except Exception as e:
-            print(e)
-            print('xx'*30)
+            pass
         return True
 
 

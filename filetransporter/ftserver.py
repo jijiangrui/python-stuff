@@ -338,7 +338,6 @@ if __name__ == '__main__':
         host = socket.gethostbyname(myname)
         host_ok = True
 
-
     if args.port and args.port > 0 :
         port = args.port
         if port == default_command_socket_port:
