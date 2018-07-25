@@ -6,5 +6,5 @@
 https://github.com/Ccapton/python-stuff/tree/master/filetransporter
 
 ### 美女图片下载爬虫
-根据关键词，爬取下载搜索页面下的一些套图 （图片来源：美图录 https://www.meitulu.com）
+根据关键词，爬取下载搜索页面下的一些套图 （图片来源：美图录 https://www.meitulu.com ）
 https://github.com/Ccapton/python-stuff/tree/master/meinv
