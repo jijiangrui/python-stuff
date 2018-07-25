@@ -114,7 +114,6 @@ class Finder2(IpLocationFinder):
         self.headers['upgrade-insecure-requests'] = '1'
         response = requests.get(self.url,headers = self.headers,params={'id':'45.63.124.188'})
         if response.status_code == 200:
-            print(response.content)
             return response.content
         return ''
 
@@ -131,10 +130,10 @@ class Finder2(IpLocationFinder):
         try:
            source = self.get_response()
            soup = BeautifulSoup(source, 'html.parser')
-           well_text = soup.find('div', attrs={'class': 'well'}).text
-           print(well_text)
-           print(str(well_text).find('China'))
-           if str(well_text).find('China') != -1:
+           #well_text = soup.find('div', attrs={'class': 'well'})
+           print(soup.text)
+           print(soup.text.find('China'))
+           if soup.text.find('China') != -1:
                return True
            else:
                return False
