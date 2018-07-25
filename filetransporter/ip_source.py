@@ -139,6 +139,7 @@ class Finder2(IpLocationFinder):
            else:
                return False
         except Exception as e:
+            print(e)
             print('xx'*30)
         return True
 
