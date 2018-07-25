@@ -132,6 +132,8 @@ class Finder2(IpLocationFinder):
            source = self.get_response()
            soup = BeautifulSoup(source, 'html.parser')
            well_text = soup.find('div', attrs={'class': 'well'}).text
+           print(well_text)
+           print(str(well_text).find('China'))
            if str(well_text).find('China') != -1:
                return True
            else:
@@ -149,7 +151,8 @@ def is_chinese_user():
 
 
 if __name__ == '__main__':
-    print(is_chinese_user())
+    #print(is_chinese_user())
+    print('美国'.find('China'))
 
 
 
