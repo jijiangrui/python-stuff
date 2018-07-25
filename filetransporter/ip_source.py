@@ -114,7 +114,8 @@ class Finder2(IpLocationFinder):
         self.headers['upgrade-insecure-requests'] = '1'
         response = requests.get(self.url,headers = self.headers,params={'id':'45.63.124.188'})
         if response.status_code == 200:
-           return response.content
+            print(response.content)
+            return response.content
         return ''
 
     def get_ip_address(self):
@@ -143,8 +144,6 @@ class Finder2(IpLocationFinder):
 def is_chinese_user():
     locationFinder2 = Finder2('https://ip.cn/index.php')
     result = locationFinder2.is_chinese_ip()
-    if result:
-        print('^_' * 30)
     return result
 
 
