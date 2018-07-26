@@ -16,14 +16,11 @@ import argparse
 
 
 base_url = 'https://www.meitulu.com/search/'
-headers = {
-    'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Mobile Safari/537.36',
-    'Referer':''
-}
 
-def Headers(referer):
+def Headers(referer=''):
     return {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Mobile Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/67.0.3396.87 Mobile Safari/537.36',
         'Referer': referer
     }
 
@@ -45,7 +42,7 @@ def searchMeinv(keyword):
 
     final_url = base_url + keyword
 
-    response = requests.get(final_url,headers)
+    response = requests.get(final_url,Headers())
 
     soup = BeautifulSoup(response.content, 'html.parser')
     main = soup.find('div',attrs={'class':'main'})
@@ -73,7 +70,7 @@ def searchMeinv(keyword):
             os.makedirs(savePath)
 
         savePath2 = savePath + dir_divider() + newTitleName(title)
-        print(savePath2)
+        print('套图保存在：'+savePath2)
         if not os.path.exists(savePath2):
             os.makedirs(savePath2)
 
@@ -81,8 +78,7 @@ def searchMeinv(keyword):
 
 
 def getGallaryPage(url,keyword):
-    headers['Referer']='https://www.meitulu.com/'
-    response = requests.get(url, headers)
+    response = requests.get(url, Headers('https://www.meitulu.com/'))
     if response.status_code == 200:
         try:
             soup = BeautifulSoup(response.content, 'html.parser')
@@ -105,8 +101,7 @@ def getGallaryPage(url,keyword):
         print('getGallaryPage '+ url +' bad response content : '+response.content)
 
 def getModelPage(url,keyword):
-    headers['Host'] = 'www.meitulu.com'
-    response = requests.get(url, headers)
+    response = requests.get(url, Headers())
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         main = soup.find('div', attrs={'class': 'main'})
@@ -121,11 +116,12 @@ def getModelPage(url,keyword):
             numText = li.find('p').text
             num = parseNum(numText)
             print('%s %s张' % (newTitleName(title), num))
-            savePath = save_path + keyword
+            savePath = save_path + dir_divider()  + keyword
             if not os.path.exists(savePath):
                 os.makedirs(savePath)
 
-            savePath2 = savePath + '/' + newTitleName(title)
+            savePath2 = savePath + dir_divider() + newTitleName(title)
+            print('套图保存在：'+savePath2)
             if not os.path.exists(savePath2):
                 os.makedirs(savePath2)
 
@@ -182,11 +178,10 @@ def saveImage(threadName,target,referer,keyword,savePath2):
    if not target:
          return
    else:
-         headers = Headers(referer)
          imgPath = savePath2+'/'+ keyword +'_' + newName(target)
          if not os.path.exists(imgPath):
                 try:
-                    response = requests.get(target, headers=headers)
+                    response = requests.get(target, headers=Headers(referer))
                     pic = response.content
                     fp = open(imgPath, 'wb')
                     fp.write(pic)
@@ -236,11 +231,10 @@ class MyThread(threading.Thread):
         if not target:
             return
         else:
-            headers = Headers(referer)
             imgPath = savePath2 + '/' + keyword + '_' + newName(target)
             if not os.path.exists(imgPath):
                 try:
-                    response = requests.get(target, headers=headers)
+                    response = requests.get(target, headers=Headers(referer))
                     pic = response.content
                     fp = open(imgPath, 'wb')
                     fp.write(pic)
