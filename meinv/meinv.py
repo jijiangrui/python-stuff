@@ -37,11 +37,13 @@ remainNum = 0
 all_result = False
  
 def searchMeinv(keyword):
+    global save_path
     save_path.replace(anti_dir_divider(),dir_divider())
+    if save_path.endswith(dir_divider()):
+        save_path = save_path[0:len(save_path)-1]
     print('图片保存根目录 %s' % (save_path))
 
     final_url = base_url + keyword
-    #headers['Referer'] = final_url
 
     response = requests.get(final_url,headers)
 
@@ -66,11 +68,11 @@ def searchMeinv(keyword):
         numText = li.find('p').text
         title = li.find('p',attrs={'class':'p_title'}).find('a').text
         print('%s %s张' % (newTitleName(title),getNum(numText)))
-        savePath = save_path +'/'+ keyword
+        savePath = save_path + dir_divider() + keyword
         if not os.path.exists(savePath):
             os.makedirs(savePath)
 
-        savePath2 = savePath + '/' + newTitleName(title)
+        savePath2 = savePath + dir_divider() + newTitleName(title)
         print(savePath2)
         if not os.path.exists(savePath2):
             os.makedirs(savePath2)
@@ -82,6 +84,7 @@ def getGallaryPage(url,keyword):
     headers['Referer']='https://www.meitulu.com/'
     response = requests.get(url, headers)
     if response.status_code == 200:
+        try:
             soup = BeautifulSoup(response.content, 'html.parser')
             c_l = soup.find('div', attrs={'class': 'c_l'})
             p_list = c_l.find_all('p')
@@ -89,13 +92,14 @@ def getGallaryPage(url,keyword):
                 if str(p.text).find('模特姓名') != -1:
                     if p.find('a'):
                         target_url = p.find('a')['href']
-                        print(target_url)
                         getModelPage(target_url, keyword)
                     else:
                         print('该模特作品较少，返回部分下载模式')
                         global all_result
                         all_result = False
                         searchMeinv(keyword)
+        except Exception:
+            print('解析有问题')
     else:
         print('getGallaryPage '+ url +' bad response code: '+response.status_code)
         print('getGallaryPage '+ url +' bad response content : '+response.content)
@@ -152,6 +156,7 @@ def downloadGalary(referer,url,num,keyword,savePath2,startTime):
        MyThread(1,'线程1',1,int(num / 3),referer,url,num,keyword,savePath2,startTime).start()
        MyThread(2,'线程2',int(num / 3),int(num * 2/ 3),referer,url,num,keyword,savePath2,startTime).start()
        MyThread(3,'线程3',int(num * 2/ 3),num,referer,url,num,keyword,savePath2,startTime).start()
+
     else:       
        for i in range(1,num):
            pic_url = newUrl(url,str(i))
@@ -230,9 +235,27 @@ class MyThread(threading.Thread):
     def run(self):
        for i in range(self.startIndex,self.endIndex):
            pic_url = newUrl(self.url,str(i))
-           saveImage(self.name,pic_url,newRefer(self.referer,i),self.keyword,self.savePath2)
-           print(newRefer(self.referer,i))
+           self.saveImage(self.name,pic_url,newRefer(self.referer,i),self.keyword,self.savePath2)
            time.sleep(0.05)
+
+    def saveImage(self,threadName, target, referer, keyword, savePath2):
+        if not target:
+            return
+        else:
+            headers = Headers(referer)
+            imgPath = savePath2 + '/' + keyword + '_' + newName(target)
+            if not os.path.exists(imgPath):
+                try:
+                    response = requests.get(target, headers=headers)
+                    pic = response.content
+                    fp = open(imgPath, 'wb')
+                    fp.write(pic)
+                    fp.close()
+                    print(threadName + ' ' + target + '下载成功,保存名：' + keyword + '_' + newName(target))
+                except:
+                    print(threadName + ' ' + keyword + '_' + newName(target) + '保存异常')
+            else:
+                print(threadName + ' ' + target + ' 已下载 ' + keyword + '_' + newName(target) + '已存在')
 
 
 def dir_divider():
@@ -278,23 +301,20 @@ def main_menu():
            '\n 2 设置参数\n' \
             +'-'*(57)
     print(view+'\r')
-    while True:
-        action_index = input('请选择一项： ')
-        if len(action_index) == 0:
-            continue
+    action_index = input('请选择一项： ')
+    if len(action_index) == 0:
+        main_menu()
+    else:
+        if action_index == '1':
+            keyword = input('关键词：')
+            searchMeinv(keyword)
+        elif action_index == '2':
+            args_menu()
+        elif action_index == 'exit':
+            exit(1)
         else:
-            if action_index == '1':
-                keyword = input('关键词：')
-                searchMeinv(keyword)
-                main_menu()
-                break
-            elif action_index == '2':
-                args_menu()
-                break
-            elif action_index == 'exit':
-                exit(1)
-            else:
-                continue
+            main_menu()
+
 
 single_text ='单线程下载（默认多线程下载）'
 mul_text ='多线程下载'
@@ -323,39 +343,46 @@ def args_menu():
            '\n 4 返回上一级\n' \
             +'-'* (56)
     print(view + '\r')
-    while True:
-        action_index = input('请选择一项： ')
-        if len(action_index) == 0:
-            continue
-        else:
-            if action_index == '1':
-                if multThread:multThread = False
-                else:multThread = True
-                main_menu()
-                break
-            elif action_index == '2':
-                if all_result:all_result = False
-                else:all_result = True
-                main_menu()
-                break
-            elif action_index == '3':
-                while True:
-                    path = input('请输入图片保存目录的路径:')
-                    if (not checkfile(path)[0]) or (checkfile(path)[0] == True and checkfile(path)[1] == 1):
-                        print('您指定的路径不是文件夹,请重新输入')
-                        continue
-                    else:
-                        global  save_path
-                        save_path = path
-                        break
-                main_menu()
-            elif action_index == '4':
-                main_menu()
-                break
-            elif action_index == 'exit':
-                exit(1)
+    action_index = input('请选择一项： ')
+    if len(action_index) == 0:
+        args_menu()
+    else:
+        if action_index == '1':
+            if multThread:
+                multThread = False
             else:
-                continue
+                multThread = True
+            main_menu()
+
+        elif action_index == '2':
+            if all_result:
+                all_result = False
+            else:
+                all_result = True
+            main_menu()
+
+        elif action_index == '3':
+            while True:
+                path = input('请输入图片保存目录的路径:')
+                if path.lower() == 'exit':
+                    exit(1)
+                if (not checkfile(path)[0]) or (checkfile(path)[0] == True and checkfile(path)[1] == 1):
+                    print('您指定的路径不是文件夹,请重新输入')
+                    continue
+                else:
+                    global save_path
+                    save_path = path
+                    main_menu()
+                    break
+
+        elif action_index == '4':
+            main_menu()
+
+        elif action_index == 'exit':
+            exit(1)
+        else:
+            args_menu()
+
 
 
 def checkfile(path):

@@ -13,12 +13,5 @@
 #。__________________________________________
 
 
-if __name__ ==  '__main__':
-    max = 40
-    index = 1
-    while index <= max:
-       if int(index) > 4:
-          print( int(index/4) +1 )
-       else:
-          print('  ' + str(index))
-       index +=1
+
+if __name__ ==  '__main__':pass
