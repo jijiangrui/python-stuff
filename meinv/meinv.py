@@ -67,7 +67,7 @@ def searchMeinv(keyword):
         print(conver_imag_url)
         numText = li.find('p').text
         title = li.find('p',attrs={'class':'p_title'}).find('a').text
-        print('%s %s张' % (newTitleName(title),getNum(numText)))
+        print('%s %s张' % (newTitleName(title),parseNum(numText)))
         savePath = save_path + dir_divider() + keyword
         if not os.path.exists(savePath):
             os.makedirs(savePath)
@@ -77,7 +77,7 @@ def searchMeinv(keyword):
         if not os.path.exists(savePath2):
             os.makedirs(savePath2)
 
-        downloadGalary(html_url,conver_imag_url,int(getNum(numText)),keyword,savePath2,startTime)
+        downloadGalary(html_url,conver_imag_url,int(parseNum(numText)),keyword,savePath2,startTime)
 
 
 def getGallaryPage(url,keyword):
@@ -140,12 +140,6 @@ def parseNum(text):
 
 def newTitleName(title):
     return str(title).replace(dir_divider(),'_')
-
-# 数量：61 张(1600X2400)
-def getNum(numText):
-    start = str(numText).find('数量： ') + 4
-    end = str(numText).find('张') - 1
-    return int(numText[start:end])
 
 def newUrl(oldUrl,index):
     return str(oldUrl).replace('/0.','/'+index+'.')
@@ -307,10 +301,12 @@ def main_menu():
     else:
         if action_index == '1':
             keyword = input('关键词：')
+            if keyword.lower() == 'exit':
+                exit(1)
             searchMeinv(keyword)
         elif action_index == '2':
             args_menu()
-        elif action_index == 'exit':
+        elif action_index.lower() == 'exit':
             exit(1)
         else:
             main_menu()
@@ -352,33 +348,33 @@ def args_menu():
                 multThread = False
             else:
                 multThread = True
-            main_menu()
+            args_menu()
 
         elif action_index == '2':
             if all_result:
                 all_result = False
             else:
                 all_result = True
-            main_menu()
+            args_menu()
 
         elif action_index == '3':
             while True:
                 path = input('请输入图片保存目录的路径:')
                 if path.lower() == 'exit':
-                    exit(1)
+                    break
                 if (not checkfile(path)[0]) or (checkfile(path)[0] == True and checkfile(path)[1] == 1):
                     print('您指定的路径不是文件夹,请重新输入')
                     continue
                 else:
                     global save_path
                     save_path = path
-                    main_menu()
+                    args_menu()
                     break
-
+            exit(1)
         elif action_index == '4':
             main_menu()
 
-        elif action_index == 'exit':
+        elif action_index.lower() == 'exit':
             exit(1)
         else:
             args_menu()
