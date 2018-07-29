@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*- 
-# @Time    : 2018/7/25 03:40
-# @Author  : capton
-# @FileName: language_words.py
-# @Software: PyCharm
-# @Blog    : http://ccapton.cn
-# @Github  : https://github.com/ccapton
-# @Email   : chenweibin1125@foxmail.com
+#。——————————————————————————————————————————
+#。
+#。  language_words.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 
 from ip_source import is_chinese_user
 
@@ -74,6 +78,8 @@ en = {
     'pidp':'Please Input Dir Path:',
     'dpif':'The Path Is A File!',
     'tdpw':'The Dir Which File Will Save There',
+    'yhim':'You Have Interrupted Mission',
+    'cmct': 'Cost Time：',
 }
 cn = {
     'po':'端口',
@@ -110,8 +116,8 @@ cn = {
     'pct':'请确认服务端是否正常运行',
     'octs':'或者确认服务端的地址和端口号是否和您输入的一致',
     'thap':'您输入的主机和端口号是',
-    'ftcp':'文件传输程序客户端',
-    'ftsp':'文件传输程序服务端',
+    'ftcp':'文件传输发送端程序',
+    'ftsp':'文件传输接收端程序',
     'id':'不可用',
     'fi':'完成',
     'pki':'请输入其他的数字',
@@ -125,7 +131,7 @@ cn = {
     'tpws':'将要发送的文件(夹)路径',
     'tptp':'程序传输数据的端口号',
     'thtp':'将要发送的目的主机',
-    'ctcs':'连接到指令套接字',
+    'ctcs':'连接到指令套接字：',
     'cara':'无法绑定到目标地址',
     'fsd':"文件保存目录",
     'shs':"服务开启",
@@ -138,13 +144,15 @@ cn = {
     'dd':'下载完毕',
     'pidp':'请输入文件夹路径',
     'dpif':'这个路径指向一个文件',
-    'tdpw':'文件保存的路径'
+    'tdpw':'文件保存的路径',
+    'yhim':'主动取消传输任务',
+    'cmct':'完成任务耗时：',
 }
 
 
 class LanguageSelecter:
     def __init__(self):
-        print('LanguageSelecter create')
+        #print('LanguageSelecter create')
         self.lang = 'cn'
     def select_language(self,lang = 'cn'):
         self.lang = lang

@@ -6,4 +6,4 @@
 
 
 ### [美女图片下载爬虫](https://github.com/Ccapton/python-stuff/tree/master/meinv)
-根据关键词，爬取下载搜索页面下的一些套图  [图片来源：美图录](https://www.meitulu.com)
+根据关键词，爬取、下载搜索页面下的一些套图  [图片来源：美图录](https://www.meitulu.com)

@@ -1,29 +1,35 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @Time    : 2018/7/24 14:09
-# @Author  : capton
-# @FileName: ftserver.py
-# @Software: PyCharm
-# @Blog    : http://ccapton.cn
-# @Github  : https://github.com/ccapton
-# @Email   : chenweibin1125@foxmail.com
-
+#。——————————————————————————————————————————
+#。
+#。  ftserver.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 import sys,os
 import socket
 import threading
 import argparse
 
-from util import dir_divider,anti_dir_divider,judge_unit,checkfile,print_author_info
+from util import dir_divider,anti_dir_divider,judge_unit,checkfile,formated_time
 import time
 
 from language_words import languageSelecter
 
-divider_arg = ' _*_ '
-right_arrows = '>'*10
-left_arrows = '<'*10
+divider_arg  = ' _*_ ' # 指令内部的分隔符
+right_arrows = '>'*10  # 输出占位符
+left_arrows  = '<'*10  # 输出占位符
 
-default_data_socket_port = 9997
-default_command_socket_port = 9998
+default_data_socket_port = 9997     # 默认的数据传输套接字端口号
+default_command_socket_port = 9998  # 默认的指令传输套接字端口号
+
+COMMAND_CLOSE = '[COMMAND CLOSE]'
+COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
 
 # socket封装类，用于简化socket输出编码的str内容的步骤
 class Messenger:
@@ -51,15 +57,18 @@ class Messenger:
         elif self.recev_debug:  print(dict('sin'))
         return None
 
+# 指令线程类
 class CommandThread(threading.Thread):
     def __init__(self, host=None, port=default_command_socket_port):
         threading.Thread.__init__(self)
         self.host = host
         self.port = port
+        self.working = True
         self.dataOn = True
         self.wait_client_flag = True
         self.mission_size = 0
         self.wrote_size = 0
+        self.start_time = 0
 
     def setDataThread(self, server):
         self.dataThread = server
@@ -75,18 +84,18 @@ class CommandThread(threading.Thread):
                 self.socket = socket2
                 self.socket.send(
                     bytes(dict('ctcs') + self.host + ':' + str(self.port), encoding='utf8'))
-
                 self.commandMessenger = Messenger(self.socket)
                 command = self.commandMessenger.recv_msg()
-                while command and len(command) > 0:
-                    if command.startswith('mission_size'):
+                self.start_time = time.time()
+                while command and len(command) and self.working> 0:
+                    if command.startswith(COMMANE_MISSION_SIZE):
                         self.mission_size = int(command.split(divider_arg)[1])
                         print(dict('m_s')+': %.2f%s' % (
                         judge_unit(self.mission_size)[0], judge_unit(self.mission_size)[1]))
-                    elif command == '[COMMAND CLOSE]':
+                    elif command == COMMAND_CLOSE:
                         self.dataOn = False
                         time.sleep(0.3)
-                        print(right_arrows+dict('rcd')+left_arrows)
+                        Warning(right_arrows+dict('rcd')+left_arrows)
                     else:
                         self.fileMission = FileMission(self.dataThread.socket, self, self.dataThread.save_path, command)
                         self.fileMission.start()
@@ -204,7 +213,7 @@ class FileMission(threading.Thread):
         with open(self.file_path,'wb') as f:
             wrote_size = 0
             filedata = self.socket.recv(1024)
-            while len(filedata) and self.working> 0:
+            while len(filedata) > 0 :
                 tempsize = f.write(filedata)
                 wrote_size += tempsize
                 self.commandThread.wrote_size += tempsize
@@ -233,6 +242,7 @@ class FileMission(threading.Thread):
                         filedata = self.socket.recv(1024)
                     except ConnectionResetError:
                         warning(right_arrows+ dict('rcd')+left_arrows)
+
             if wrote_size < self.filesize:
                 warning(right_arrows+dict('ci')+left_arrows)
                 self.dataOn = False
@@ -246,11 +256,9 @@ class FileMission(threading.Thread):
                 self.commandThread.wrote_size = 0
                 self.commandThread.mission_size = 0
                 print(right_arrows+dict('mc')+left_arrows)
+                print(dict('cmct')+'%s' % formated_time(time.time() - self.commandThread.start_time))
                 print(dict('ra')+' (%s,%d)' % (self.commandThread.dataThread.host, self.commandThread.dataThread.port))
                 print(dict('wfft')+'...')
-
-        # self.socket.close()
-        # list(self.server.socket_list).remove(self.socket)
 
 def warning(text):
     print('[%s] '% dict('wa')+text)

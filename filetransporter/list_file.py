@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @Time    : 2018/7/24 14:09
-# @Author  : capton
-# @FileName: list_file.py
-# @Software: PyCharm
-# @Blog    : http://ccapton.cn
-# @Github  : https://github.com/ccapton
-# @Email   : chenweibin1125@foxmail.com
+#。——————————————————————————————————————————
+#。
+#。  list_file.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 
 import os,time
 # 文件、文件夹寻找类 (阻塞型)
@@ -41,19 +45,19 @@ class FileFinder:
    def list_flie(self,root_dir):
        if  os.path.isfile(root_dir):
            while self.recycle:
-               time.sleep(0.02)
+               time.sleep(0.05)
            if self.finderCallback:
                self.finderCallback.onFindFile(root_dir,os.path.getsize(root_dir))
                self.finderCallback.onRefresh()
                if not self.off:
                   self.recycle = True
        else:
-           list = os.listdir(root_dir)  # 列出文件夹下所有的目录与文件
-           for i in range(0, len(list)):
-               path = os.path.join(root_dir, list[i])
+           dirlist = os.listdir(root_dir)  # 列出文件夹下所有的目录与文件
+           for dir in dirlist:
+               path = os.path.join(root_dir, dir)
                if os.path.isfile(path):
                    while self.recycle:
-                       time.sleep(0.02)
+                       time.sleep(0.05)
                    if self.finderCallback:
                        self.finderCallback.onFindFile(path,os.path.getsize(path))
                        self.finderCallback.onRefresh()
@@ -61,7 +65,7 @@ class FileFinder:
                           self.recycle = True
                else:
                    while self.recycle:
-                       time.sleep(0.02)
+                       time.sleep(0.05)
                    if self.finderCallback:
                        self.finderCallback.onFindDir(path)
                        self.finderCallback.onRefresh()
@@ -100,9 +104,9 @@ class FileFinder_Fast:
                self.finderCallback.onFindFile(root_dir,os.path.getsize(root_dir))
                self.finderCallback.onRefresh()
        else:
-           list = os.listdir(root_dir)
-           for i in range(0, len(list)):
-               path = os.path.join(root_dir, list[i])
+           dirlist = os.listdir(root_dir)
+           for dir in dirlist:
+               path = os.path.join(root_dir, dir)
                if os.path.isfile(path):
                    if self.debug:print('%s%s' % (dict('ff'),path))
                    if self.finderCallback:
@@ -116,13 +120,16 @@ class FileFinder_Fast:
                    self.list_flie(path)
 
 class MyfinderCallback(FileFinder.FinderCallback):
-    def onFindDir(self,dir_path):
+   def onFindDir(self,dir_path):
         print(dir_path)
-    def onFindFile(self,file_path,size):
+   def onFindFile(self,file_path,size):
         print('   ' + file_path + ' ' + str(size))
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
+    list = os.listdir('/Users/capton/desktop/bilibili')
+    for item in list:
+        print(os.path.join('/Users/capton/desktop/bilibili', item))
 #      finder = FileFinder(MyfinderCallback())
 #      finder.recycle = False
 #      finder.list_flie('/Users/capton/desktop/video_downloader')

@@ -1,5 +1,16 @@
-#encoding:utf-8
-  
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+#。——————————————————————————————————————————
+#。
+#。  meinv.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 from bs4 import BeautifulSoup
 import requests
  
@@ -7,8 +18,6 @@ import os
 
 import platform
 import threading
-
-import sys
 
 import time
 
@@ -395,8 +404,6 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--single_thread', required=False, help=('单线程'))
     parser.add_argument('-a', '--all', required=False, help=('下载所有图片'))
     parser.add_argument('-d', '--dir', required=False, help=('保存路径'))
-
-
 
     args = parser.parse_args()
 

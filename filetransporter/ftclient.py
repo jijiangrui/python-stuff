@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @Time    : 2018/7/24 14:09
-# @Author  : capton
-# @FileName: ftclient.py
-# @Software: PyCharm
-# @Blog    : http://ccapton.cn
-# @Github  : https://github.com/ccapton
-# @Email   : chenweibin1125@foxmail.com
-
+#。——————————————————————————————————————————
+#。
+#。  ftclient.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 import sys
 import socket
 import threading
 import argparse
 
 from list_file import *
-from util import relative_path,dir_divider,checkfile,formated_size
+from util import relative_path,dir_divider,checkfile,formated_size,formated_time
 
 from  language_words import languageSelecter
 
@@ -29,6 +32,9 @@ isCommandTConnected= False
 
 default_data_socket_port = 9997
 default_command_socket_port = 9998
+
+COMMAND_CLOSE = '[COMMAND CLOSE]'
+COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
 
 class Messenger:
     def __init__(self,socket):
@@ -62,6 +68,7 @@ class CommandThread(threading.Thread):
         self.port = port
         self.working = True
         self.messanger = None
+        self.start_time = 0
 
     def setMissionSize(self,mission_size):
         self.mission_size = mission_size
@@ -79,9 +86,10 @@ class CommandThread(threading.Thread):
             try:
                 command = bytes(self.socket.recv(1024)).decode(encoding='utf8')
                 if self.working:
+                   self.start_time = time.time()
                    print(command)
                 self.messanger.send_msg(
-                    'mission_size'+ divider_arg + str(self.mission_size))
+                    COMMANE_MISSION_SIZE + divider_arg + str(self.mission_size))
                 while self.working and command and len(command) > 0:
                     if command.endswith('rootdir_create_ok'):
                         self.dataThread.waitingCreateDir = False
@@ -106,13 +114,10 @@ class CommandThread(threading.Thread):
                 print(' %s...' % dict('pttmoa'))
             except OSError as e:
                 print('%s(%s)' % (dict('nrth'),self.host))
-
             except Exception as e:
                 print(e)
-
         except Exception:
             warning(right_arrows+dict('ce')+left_arrows)
-
 
 
     def send_fileinfo(self,fileinfo):
@@ -206,7 +211,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             if isCommandTConnected:
                 print('%s %d' % (dict('tsbd'),self.port))
                 print(right_arrows+dict('cd')+left_arrows)
-                self.commandThread.messanger.send_msg('[COMMAND CLOSE]')
+                self.commandThread.messanger.send_msg(COMMAND_CLOSE)
                 self.commandThread.socket.close()
                 self.commandThread.working = False
             else:
@@ -244,21 +249,21 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                             self.filefinder.off = True
                         print(right_arrows+dict('rcd')+left_arrows)
                         self.once = False
-
                 filedata = f.read(1024)
         print()
         if  readed_size == self.filesize and readed_size == 0:
             print(os.path.basename(self.filename) + ' %s' % dict('fi') )
         print('—'*30)
         if self.singFile:
-            self.commandThread.send_command('[COMMAND CLOSE]')
+            self.commandThread.send_command(COMMAND_CLOSE)
             self.socket.close()
             self.commandThread.working = False
         else:
             if self.findfileOver:
-                self.commandThread.send_command('[COMMAND CLOSE]')
+                self.commandThread.send_command(COMMAND_CLOSE)
                 self.socket.close()
                 self.commandThread.working = False
+                print(dict('cmct')+'%s' % formated_time(time.time() - self.commandThread.start_time))
 
 class MyfinderCallback(FileFinder_Fast.FinderCallback):
     def __init__(self):
@@ -385,6 +390,7 @@ if __name__ == '__main__':
         confirm = input('%s(Y/N):'% dict('ct'))
         while True:
             if confirm == 'y' or confirm == 'Y' or confirm == 'Yes'.upper() or confirm == 'yes'.lower():
+                commandThread = None
                 client = Client(host, port)
                 commandThread = CommandThread(host)
                 commandThread.setDataThread(client)

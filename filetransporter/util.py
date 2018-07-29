@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @Time    : 2018/7/24 14:09
-# @Author  : capton
-# @FileName: util.py
-# @Software: PyCharm
-# @Blog    : http://ccapton.cn
-# @Github  : https://github.com/ccapton
-# @Email   : chenweibin1125@foxmail.com
+#。——————————————————————————————————————————
+#。
+#。  util.py
+#。
+#。 @Time    : 2018/7/26 00:09
+#。 @Author  : capton
+#。 @Software: PyCharm
+#。 @Blog    : http://ccapton.cn
+#。 @Github  : https://github.com/ccapton
+#。 @Email   : chenweibin1125@foxmail.com
+#。__________________________________________
 
+import math
 
+# 判断输入的路径是文件还是文件夹、或是否存在
 def checkfile(path):
     if not path:
         return False,-1
@@ -20,6 +26,27 @@ def checkfile(path):
     else:
         return False, -1
 
+# 格式化花费时间
+def formated_time(time):
+    if time / 60 / 60 >= 1:
+        hour = math.floor(time/ 60 / 60)
+        min = (time/ 60 / 60 - hour) * 60
+        if (min - int(min)) * 60 - math.floor((min - int(min)) * 60) > 0.5:
+            sec = math.ceil((min - int(min)) * 60)
+        else:
+            sec = math.floor((min - int(min)) * 60)
+        return '%dh:%dm:%ds' % (hour,min,sec)
+    elif time / 60 >= 1:
+        min = math.floor(time /60)
+        if (time/ 60-min) * 60 - math.floor((time/ 60-min) * 60) > 0.5:
+            sec = math.ceil((time/ 60-min) * 60)
+        else:
+            sec = math.floor((time/ 60-min) * 60)
+        return '%dm:%ds' % (min,sec)
+    else:
+        return '%.2fs' % time
+
+# 格式化文件尺寸
 def formated_size(size):
     if size / 1024 / 1024 / 1024 >= 1:
         show_size = size / 1024 / 1024 / 1024
@@ -35,6 +62,7 @@ def formated_size(size):
         unit = 'b'
     return '%.2f' % show_size + unit
 
+# 判断文件大小的单位
 def judge_unit(size):
     if size / 1024 / 1024 / 1024 >= 1:
         show_size = size / 1024 / 1024 / 1024
@@ -50,14 +78,14 @@ def judge_unit(size):
         unit = 'b'
     return (show_size, unit)
 
-
+# 获取相对路径
 def relative_path(root,absolute_path):
     relative_path = str(absolute_path)[str(absolute_path).find(root)+len(root)+1:]
     if not relative_path:
         relative_path = ''
     return relative_path
 
-
+# 自适应Windows、macos、linux 路径分隔符
 def dir_divider():
     import platform
     if platform.platform().find('Windows') != -1:
@@ -65,6 +93,7 @@ def dir_divider():
     else:
         return '/'
 
+# 自适应Windows、macos、linux 路径分隔符 相反
 def anti_dir_divider():
     import platform
     if platform.platform().find('Windows') != -1:
@@ -72,6 +101,7 @@ def anti_dir_divider():
     else:
         return '\\'
 
+# 打印程序信息
 def print_author_info(program_name):
     print('*'*60)
     line = 9
@@ -94,5 +124,5 @@ def print_author_info(program_name):
     print('*'*60)
 
 if __name__ == '__main__':
-      pass
+      print(formated_time(3680.4323222))
 
