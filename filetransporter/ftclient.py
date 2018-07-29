@@ -242,7 +242,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
     def send_filedata(self):
         readed_size = 0
         with open(self.filename,'rb') as f:
-            filedata = f.read(1024)
+            filedata = f.read(4096)
             while len(filedata) > 0 :
                 tempsize = len(filedata)
                 readed_size += tempsize

@@ -186,7 +186,7 @@ class FileMission(threading.Thread):
     def run(self):
         self.handleMission()
 
-     # 分析客户端传过来的文件信息（若是文件夹，则新建文件夹；若是文件，则准备从套接字socket对象中读取数据写入新文件中）
+    # 分析客户端传过来的文件信息（若是文件夹，则新建文件夹；若是文件，则准备从套接字socket对象中读取数据写入新文件中）
     def handleMission(self):
         if self.fileinfo:  # 解析fileinfo文本，分析出文件夹、文件信息
             self.filename = self.fileinfo.split(divider_arg)[1]
@@ -197,7 +197,7 @@ class FileMission(threading.Thread):
         if self.filesize >= 0: # 若是文件，则用套接字发送指令通知客户端已准备接收数据
             self.file_md5 = self.fileinfo.split(divider_arg)[3]
             self.write_filedata()
-        elif self.filesize == -1:                 # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
+        elif self.filesize == -1:  # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
             index = int(self.fileinfo.split(divider_arg)[3])
@@ -214,6 +214,7 @@ class FileMission(threading.Thread):
      # 读取socket原始数据，写入文件中
     def write_filedata(self):
         print(dict('st')+'%s %s' % (self.filename,formated_size(self.filesize)))
+        # 检查本地文件md5值，若与要传输的文件一致说明传输过了此文件，跳过
         if getFileMd5(self.file_path) == self.file_md5:
             print(dict('fe') + self.filename)
             self.commandThread.wrote_size += self.filesize
@@ -237,19 +238,25 @@ class FileMission(threading.Thread):
                     dict('ra') + ' (%s,%d)' % (self.commandThread.dataThread.host, self.commandThread.dataThread.port))
                 print(dict('wfft') + '...')
             return
+
+        # 有些文件尺寸为0，但也要在本地新建一个同名空内容的文件
         if self.filesize == 0:
             with open(self.file_path, 'wb') as f:
                 pass
             self.commandThread.file_existed(self.fileinfo)
             return
+
+        # 以上步骤检查无误后开，始正常的传输任务，告诉客户（发送)端可以开始发送文件原始数据了
         self.commandThread.file_ready(self.fileinfo)
+
+        # 将套接字获取的数据写入文件中
         with open(self.file_path,'wb') as f:
-            wrote_size = 0
-            filedata = self.socket.recv(1024)
+            wrote_size = 0 # 当前文件已写入的大小
+            filedata = self.socket.recv(4096)
             while len(filedata) > 0 :
-                tempsize = f.write(filedata)
+                tempsize = f.write(filedata) # 将数据写入文件f中，获得已写入的大小
                 wrote_size += tempsize
-                self.commandThread.wrote_size += tempsize
+                self.commandThread.wrote_size += tempsize # 整个传输任务已完成的大小
                 f.flush()
                 downloaded_show = '%s/%s' % (formated_size(wrote_size),formated_size(self.filesize))
                 total_downloaded_show = '%s/%s' % (formated_size(self.commandThread.wrote_size),
@@ -263,16 +270,21 @@ class FileMission(threading.Thread):
                 if wrote_size == self.filesize:
                     print()
                     print(self.filename + ' ' + dict('dd'))
+                    # 若当前写入的大小 = 文件大小，说明该文件传输完毕了，告诉客户（发送)端
                     self.commandThread.file_transportover(self.fileinfo)
+                    # 根据指令线程从客户端收到对方是否已关闭套接字的消息，决定是否关闭本地数据套接字
                     if not self.commandThread.dataOn:
                         self.socket.close()
                     break
                 else:
                     try:
+                    # 若以上情况没有发生，说明还在传输文件中，就从套接字中接收数据
                         filedata = self.socket.recv(1024)
                     except ConnectionResetError:
+                        # 若出现这个异常说明，对方连接中断了
                         warning(right_arrows+ dict('rcd')+left_arrows)
 
+            # 当前文件已写入的大小 < 文件大小 ，说明是连接中断了，这时应该关闭本地的数据套接字，重置任务大小、已完成任务的大小
             if wrote_size < self.filesize:
                 warning(right_arrows+dict('ci')+left_arrows)
                 self.dataOn = False
@@ -281,7 +293,8 @@ class FileMission(threading.Thread):
                 self.commandThread.wrote_size = 0
                 self.commandThread.mission_size = 0
 
-            print('-'*30)
+            print('-'*30) #分隔符
+            # 若已完成任务的大小 = 任务大小 且 != 0 ,则说明整个传输任务完成
             if self.commandThread.wrote_size == self.commandThread.mission_size and self.commandThread.wrote_size != 0:
                 self.commandThread.wrote_size = 0
                 self.commandThread.mission_size = 0
