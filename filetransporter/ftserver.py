@@ -28,6 +28,7 @@ left_arrows  = '<'*10  # 输出占位符
 default_data_socket_port = 9997     # 默认的数据传输套接字端口号
 default_command_socket_port = 9998  # 默认的指令传输套接字端口号
 
+# 指令标识符
 COMMAND_CLOSE = '[COMMAND CLOSE]'
 COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
 COMMANE_FILE_INFO = '[COMMAND FILE_INFO]'
@@ -71,6 +72,7 @@ class CommandThread(threading.Thread):
         self.wrote_size = 0
         self.start_time = 0
 
+    # 设置数据线程实例
     def setDataThread(self, server):
         self.dataThread = server
 
@@ -85,22 +87,23 @@ class CommandThread(threading.Thread):
                 self.socket = socket2
                 self.socket.send(
                     bytes(dict('ctcs') + self.host + ':' + str(self.port), encoding='utf8'))
-                self.commandMessenger = Messenger(self.socket)
+                self.commandMessenger = Messenger(self.socket) # 新建Messenger对象，供后续调用
                 command = self.commandMessenger.recv_msg()
                 self.start_time = time.time()
+                # 此循环内，判断发送端发来的指令
                 while command and len(command) and self.working> 0:
-                    if command.startswith(COMMANE_MISSION_SIZE):
+                    if command.startswith(COMMANE_MISSION_SIZE): # 指令是否关于任务的大小，若是，保存任务大小的值
                         self.mission_size = int(command.split(divider_arg)[1])
                         print(dict('m_s')+': %s' % formated_size(self.mission_size))
-                    elif command.startswith(COMMANE_FILE_INFO):
+                    elif command.startswith(COMMANE_FILE_INFO): # 指令是否关于文件大小，若是，保存文件大小的值
                         self.fileMission = FileMission(self.dataThread.socket, self, self.dataThread.save_path, command)
                         self.fileMission.start()
                         self.dataOn = True
-                    elif command == COMMAND_CLOSE:
+                    elif command == COMMAND_CLOSE: # 指令是否关于发送方已关闭数据套接字，若是，标志位dataOn设为False
                         self.dataOn = False
                         time.sleep(0.3)
                         Warning(right_arrows+dict('rcd')+left_arrows)
-                    command = self.commandMessenger.recv_msg()
+                    command = self.commandMessenger.recv_msg() # 阻塞以接收指令
         except OSError:
             warning(dict('cara'))
             self.wait_client_flag = False
@@ -279,7 +282,7 @@ class FileMission(threading.Thread):
                 else:
                     try:
                     # 若以上情况没有发生，说明还在传输文件中，就从套接字中接收数据
-                        filedata = self.socket.recv(1024)
+                        filedata = self.socket.recv(4096)
                     except ConnectionResetError:
                         # 若出现这个异常说明，对方连接中断了
                         warning(right_arrows+ dict('rcd')+left_arrows)
@@ -411,8 +414,6 @@ if __name__ == '__main__':
         server.start()
         commandThread.setDataThread(server)
         commandThread.start()
-    else:
-        if len(sys.argv) == 1:
-            sys.argv.append('--help')
+
 
 
