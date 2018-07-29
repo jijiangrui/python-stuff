@@ -16,7 +16,7 @@ import socket
 import threading
 import argparse
 
-from util import dir_divider,anti_dir_divider,checkfile,formated_time,formated_size
+from util import dir_divider,anti_dir_divider,checkfile,formated_time,formated_size,getFileMd5
 import time
 
 from language_words import languageSelecter
@@ -113,6 +113,10 @@ class CommandThread(threading.Thread):
     def file_transportover(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'file_transport_ok')
 
+    # 告诉客户端该文件已经存在了
+    def file_existed(self,fileinfo):
+        self.commandMessenger.send_msg(fileinfo + divider_arg + 'file_existed')
+
     # 告诉客户该文件夹已经创建好了
     def dir_created(self,fileinfo):
         self.commandMessenger.send_msg(fileinfo + divider_arg +'dir_create_ok')
@@ -190,10 +194,10 @@ class FileMission(threading.Thread):
             self.file_path = str(self.save_path + dir_divider() + self.filename)
             self.file_path = self.file_path.replace(anti_dir_divider(), dir_divider())
             self.filesize = int(self.fileinfo.split(divider_arg)[2])
-        if self.filesize > 0: # 若是文件，则用套接字发送指令通知客户端已准备接收数据
-            self.commandThread.file_ready(self.fileinfo)
-            self.write_filedata(self.fileinfo)
-        else:                 # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
+        if self.filesize >= 0: # 若是文件，则用套接字发送指令通知客户端已准备接收数据
+            self.file_md5 = self.fileinfo.split(divider_arg)[3]
+            self.write_filedata()
+        elif self.filesize == -1:                 # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
             index = int(self.fileinfo.split(divider_arg)[3])
@@ -208,8 +212,28 @@ class FileMission(threading.Thread):
             print(dict('cd')+': ' + dir)
 
      # 读取socket原始数据，写入文件中
-    def write_filedata(self,fileinfo):
-        print(dict('st')+'%s%s' % (self.filename,formated_size(self.filesize)))
+    def write_filedata(self):
+        print(dict('st')+'%s %s' % (self.filename,formated_size(self.filesize)))
+        if getFileMd5(self.file_path) == self.file_md5:
+            print(dict('fe')+' '+ self.filename)
+            self.commandThread.wrote_size += self.filesize
+            self.commandThread.file_existed(self.fileinfo)
+            print('-' * 30)
+            if self.commandThread.wrote_size == self.commandThread.mission_size and self.commandThread.wrote_size != 0:
+                self.commandThread.wrote_size = 0
+                self.commandThread.mission_size = 0
+                print(right_arrows + dict('mc') + left_arrows)
+                print(dict('cmct') + '%s' % formated_time(time.time() - self.commandThread.start_time))
+                print(
+                    dict('ra') + ' (%s,%d)' % (self.commandThread.dataThread.host, self.commandThread.dataThread.port))
+                print(dict('wfft') + '...')
+            return
+        if self.filesize == 0:
+            with open(self.file_path, 'wb') as f:
+                pass
+            self.commandThread.file_existed(self.fileinfo)
+            return
+        self.commandThread.file_ready(self.fileinfo)
         with open(self.file_path,'wb') as f:
             wrote_size = 0
             filedata = self.socket.recv(1024)
@@ -222,7 +246,7 @@ class FileMission(threading.Thread):
                 total_downloaded_show = '%s/%s' % (formated_size(self.commandThread.wrote_size),
                                                    formated_size(self.commandThread.mission_size))
                 current_filename = os.path.basename(self.filename) +' '
-                sys.stdout.write(current_filename+downloaded_show +' | %.2f%%  >>>%s %s | %.2f%%' %
+                sys.stdout.write(current_filename + downloaded_show +' | %.2f%%  >>>%s %s | %.2f%%' %
                                  (float(wrote_size / self.filesize * 100),
                                   dict('total'),
                                   total_downloaded_show,
@@ -315,8 +339,6 @@ def dict(key):
 if __name__ == '__main__':
 
     print_author_info(dict('ftsp'))
-    #if len(sys.argv) == 1:
-    #    sys.argv.append('--help')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--dir', required=False, help=(dict('tdpw')))
@@ -324,7 +346,6 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--host', required=False, help=(dict('thtp')),type = str)
 
     args = parser.parse_args()
-
 
     port = default_data_socket_port
     port_ok = True
@@ -368,4 +389,8 @@ if __name__ == '__main__':
         server.start()
         commandThread.setDataThread(server)
         commandThread.start()
+    else:
+        if len(sys.argv) == 1:
+            sys.argv.append('--help')
+
 

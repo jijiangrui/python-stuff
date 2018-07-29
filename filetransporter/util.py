@@ -101,6 +101,21 @@ def anti_dir_divider():
     else:
         return '\\'
 
+# 获取文件的md5值
+def getFileMd5(filename):
+    import os
+    if not os.path.isfile(filename):
+        return ''
+    import hashlib
+    myhash = hashlib.md5()
+    with open(filename, 'rb') as f:
+        while True:
+            b = f.read(8096)
+            if not b:
+                break
+            myhash.update(b)
+    return myhash.hexdigest()
+
 # 打印程序信息
 def print_author_info(program_name):
     print('*'*60)

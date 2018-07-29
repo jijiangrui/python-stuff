@@ -17,7 +17,7 @@ import threading
 import argparse
 
 from list_file import *
-from util import relative_path,dir_divider,checkfile,formated_size,formated_time
+from util import relative_path,dir_divider,checkfile,formated_size,formated_time,getFileMd5
 
 from  language_words import languageSelecter
 
@@ -96,6 +96,14 @@ class CommandThread(threading.Thread):
                         self.dataThread.waitingCreateDir = False
                     elif command.endswith('file_transport_ok') or command.endswith('dir_create_ok'):
                         self.dataThread.filefinder.recycle = False
+                    elif command.endswith('file_existed'):
+                        self.dataThread.filefinder.recycle = False
+                        print(dict('fe') + ' ' + command.split(divider_arg)[1])
+                        if self.dataThread.findfileOver:
+                            self.send_command(COMMAND_CLOSE)
+                            self.socket.close()
+                            self.working = False
+                            print(dict('cmct') + '%s' % formated_time(time.time() - self.start_time))
                     elif command.endswith('ready'):
                         self.dataThread.send_filedata()
                     command = self.messanger.recv_msg()
@@ -128,7 +136,6 @@ class CommandThread(threading.Thread):
     def send_command(self,msg):
         if self.messanger:
             self.messanger.send_msg(msg)
-
 
 class Client(threading.Thread , FileFinder.FinderCallback):
     def __init__(self,host,port):
@@ -173,11 +180,13 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             self.commandThread.send_fileinfo(COMMANE_FILE_INFO + divider_arg +
                                              os.path.basename(file_path) + divider_arg+
                                              str(size) + divider_arg+
+                                             getFileMd5(file_path) + divider_arg+
                                              str(msg_index))
         else:
             self.commandThread.send_fileinfo(COMMANE_FILE_INFO + divider_arg +
                                              os.path.basename(self.rootpath) + dir_divider()+ relative_path(self.rootpath,file_path) + divider_arg+
                                              str(size) + divider_arg +
+                                             getFileMd5(file_path) + divider_arg +
                                              str(msg_index))
 
     def run(self):
@@ -204,7 +213,6 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                 self.filefinder.recycle = False
                 self.filefinder.list_flie(self.filepath)
                 self.findfileOver = True
-
         elif not checkfile(self.filepath)[0]:
             print(dict('picf'))
 
@@ -230,7 +238,6 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         except OSError as e:
             print('%s(%s)' % (dict('nrth'),self.host))
         return False
-
 
     def send_filedata(self):
         readed_size = 0
@@ -283,7 +290,6 @@ class MyfinderCallback(FileFinder_Fast.FinderCallback):
     def onFindFile(self,file_path,size):
         self.sumsize += size
 
-
 def keyInPort():
     while True:
         temp_port = input(dict('ip'))
@@ -293,7 +299,6 @@ def keyInPort():
             warning(dict('pmb'))
         elif int(temp_port) == default_command_socket_port:
             warning('%s %d %s,%s' % (dict('po'),dict('id'),default_command_socket_port,dict('pki')))
-
 
 def keyInFilePath():
     while True:
@@ -315,7 +320,6 @@ def keyInHost():
 
 def warning(text):
     print('[%s] ' % dict('wa')+text)
-
 
 def dict(key):
    return languageSelecter.dict(key)

@@ -81,6 +81,7 @@ en = {
     'tdpw':'The Dir Which File Will Save There',
     'yhim':'You Have Interrupted Mission',
     'cmct': 'Cost Time：',
+    'fe': 'File Already Existed：',
 }
 cn = {
     'po':'端口',
@@ -148,6 +149,7 @@ cn = {
     'tdpw':'文件保存的路径',
     'yhim':'主动取消传输任务',
     'cmct':'完成任务耗时：',
+    'fe':'文件已存在：',
 }
 
 
