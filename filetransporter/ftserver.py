@@ -215,9 +215,18 @@ class FileMission(threading.Thread):
     def write_filedata(self):
         print(dict('st')+'%s %s' % (self.filename,formated_size(self.filesize)))
         if getFileMd5(self.file_path) == self.file_md5:
-            print(dict('fe')+' '+ self.filename)
+            print(dict('fe') + self.filename)
             self.commandThread.wrote_size += self.filesize
             self.commandThread.file_existed(self.fileinfo)
+            downloaded_show = '%s/%s' % (formated_size(self.filesize), formated_size(self.filesize))
+            total_downloaded_show = '%s/%s' % (formated_size(self.commandThread.wrote_size),
+                                               formated_size(self.commandThread.mission_size))
+            current_filename = os.path.basename(self.filename) + ' '
+            print(current_filename + downloaded_show + ' | %.2f%%  >>>%s %s | %.2f%%' %
+                             (float(self.filesize / self.filesize * 100),
+                              dict('total'),
+                              total_downloaded_show,
+                              float(self.commandThread.wrote_size / self.commandThread.mission_size * 100)) + '\r')
             print('-' * 30)
             if self.commandThread.wrote_size == self.commandThread.mission_size and self.commandThread.wrote_size != 0:
                 self.commandThread.wrote_size = 0
