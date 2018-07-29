@@ -35,6 +35,7 @@ default_command_socket_port = 9998
 
 COMMAND_CLOSE = '[COMMAND CLOSE]'
 COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
+COMMANE_FILE_INFO = '[COMMAND FILE_INFO]'
 
 class Messenger:
     def __init__(self,socket):
@@ -155,9 +156,10 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         print(dict('cd')+ os.path.basename(self.rootpath)+dir_divider()+relative_path(self.rootpath,dir_path))
         self.filename = dir_path
         self.filesize = -1
-        self.commandThread.send_fileinfo(os.path.basename(self.rootpath) + dir_divider()
-                                               +relative_path(self.rootpath,dir_path)+ divider_arg
-                                               +str(-1)+divider_arg+str(msg_index))
+        self.commandThread.send_fileinfo(COMMANE_FILE_INFO + divider_arg
+                                         +os.path.basename(self.rootpath) + dir_divider()+relative_path(self.rootpath,dir_path)+ divider_arg
+                                         +str(-1)+divider_arg+
+                                         str(msg_index))
 
     def onFindFile(self,file_path,size):
         global msg_index
@@ -168,11 +170,15 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         self.filename = file_path
         self.filesize = size
         if (os.path.isfile(file_path) and relative_path(self.rootpath,file_path) == ''):
-            self.commandThread.send_fileinfo(os.path.basename(file_path) + divider_arg + str(size)+divider_arg+str(msg_index))
+            self.commandThread.send_fileinfo(COMMANE_FILE_INFO + divider_arg +
+                                             os.path.basename(file_path) + divider_arg+
+                                             str(size) + divider_arg+
+                                             str(msg_index))
         else:
-            self.commandThread.send_fileinfo(os.path.basename(self.rootpath)+ dir_divider()
-                                               +relative_path(self.rootpath,file_path)+ divider_arg +str(size)
-                                                   + divider_arg + str(msg_index))
+            self.commandThread.send_fileinfo(COMMANE_FILE_INFO + divider_arg +
+                                             os.path.basename(self.rootpath) + dir_divider()+ relative_path(self.rootpath,file_path) + divider_arg+
+                                             str(size) + divider_arg +
+                                             str(msg_index))
 
     def run(self):
 
@@ -187,7 +193,10 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             self.findfileOver = False
             if self.connect_to_server():
                 print(dict('cd') + os.path.basename(self.filepath))
-                self.commandThread.send_command(os.path.basename(self.filepath) + divider_arg +'-1' +divider_arg + str(msg_index))
+                self.commandThread.send_command(COMMANE_FILE_INFO + divider_arg+
+                                                os.path.basename(self.filepath) + divider_arg +
+                                                '-1' +divider_arg
+                                                + str(msg_index))
                 while self.waitingCreateDir:
                     time.sleep(0.1)
                 self.waitingCreateDir = True
@@ -258,6 +267,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             self.commandThread.send_command(COMMAND_CLOSE)
             self.socket.close()
             self.commandThread.working = False
+            print(dict('cmct') + '%s' % formated_time(time.time() - self.commandThread.start_time))
         else:
             if self.findfileOver:
                 self.commandThread.send_command(COMMAND_CLOSE)

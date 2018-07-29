@@ -16,7 +16,7 @@ import socket
 import threading
 import argparse
 
-from util import dir_divider,anti_dir_divider,judge_unit,checkfile,formated_time
+from util import dir_divider,anti_dir_divider,checkfile,formated_time,formated_size
 import time
 
 from language_words import languageSelecter
@@ -30,6 +30,7 @@ default_command_socket_port = 9998  # 默认的指令传输套接字端口号
 
 COMMAND_CLOSE = '[COMMAND CLOSE]'
 COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
+COMMANE_FILE_INFO = '[COMMAND FILE_INFO]'
 
 # socket封装类，用于简化socket输出编码的str内容的步骤
 class Messenger:
@@ -90,16 +91,15 @@ class CommandThread(threading.Thread):
                 while command and len(command) and self.working> 0:
                     if command.startswith(COMMANE_MISSION_SIZE):
                         self.mission_size = int(command.split(divider_arg)[1])
-                        print(dict('m_s')+': %.2f%s' % (
-                        judge_unit(self.mission_size)[0], judge_unit(self.mission_size)[1]))
+                        print(dict('m_s')+': %s' % formated_size(self.mission_size))
+                    elif command.startswith(COMMANE_FILE_INFO):
+                        self.fileMission = FileMission(self.dataThread.socket, self, self.dataThread.save_path, command)
+                        self.fileMission.start()
+                        self.dataOn = True
                     elif command == COMMAND_CLOSE:
                         self.dataOn = False
                         time.sleep(0.3)
                         Warning(right_arrows+dict('rcd')+left_arrows)
-                    else:
-                        self.fileMission = FileMission(self.dataThread.socket, self, self.dataThread.save_path, command)
-                        self.fileMission.start()
-                        self.dataOn = True
                     command = self.commandMessenger.recv_msg()
         except OSError:
             warning(dict('cara'))
@@ -185,19 +185,19 @@ class FileMission(threading.Thread):
      # 分析客户端传过来的文件信息（若是文件夹，则新建文件夹；若是文件，则准备从套接字socket对象中读取数据写入新文件中）
     def handleMission(self):
         if self.fileinfo:  # 解析fileinfo文本，分析出文件夹、文件信息
-            self.filename = self.fileinfo.split(divider_arg)[0]
+            self.filename = self.fileinfo.split(divider_arg)[1]
             self.filename = self.filename.replace(anti_dir_divider(), dir_divider())
             self.file_path = str(self.save_path + dir_divider() + self.filename)
             self.file_path = self.file_path.replace(anti_dir_divider(), dir_divider())
-            self.filesize = int(self.fileinfo.split(divider_arg)[1])
+            self.filesize = int(self.fileinfo.split(divider_arg)[2])
         if self.filesize > 0: # 若是文件，则用套接字发送指令通知客户端已准备接收数据
             self.commandThread.file_ready(self.fileinfo)
             self.write_filedata(self.fileinfo)
         else:                 # 若是文件夹，则在本地创建文件夹并童套接字通知客户端已创建完文件夹了
             if not os.path.exists(self.file_path):
                 os.makedirs(self.file_path)
-            index = int(self.fileinfo.split(divider_arg)[2])
-            dir = self.fileinfo.split(divider_arg)[0]
+            index = int(self.fileinfo.split(divider_arg)[3])
+            dir = self.fileinfo.split(divider_arg)[1]
 
             if index == 0:
                 print(right_arrows+dict('ms')+left_arrows)
@@ -209,7 +209,7 @@ class FileMission(threading.Thread):
 
      # 读取socket原始数据，写入文件中
     def write_filedata(self,fileinfo):
-        print(dict('st')+'%s %.2f%s' % (self.filename,judge_unit(self.filesize)[0],judge_unit(self.filesize)[1]))
+        print(dict('st')+'%s%s' % (self.filename,formated_size(self.filesize)))
         with open(self.file_path,'wb') as f:
             wrote_size = 0
             filedata = self.socket.recv(1024)
@@ -218,12 +218,9 @@ class FileMission(threading.Thread):
                 wrote_size += tempsize
                 self.commandThread.wrote_size += tempsize
                 f.flush()
-                downloaded_show = '%.2f%s/%.2f%s' % (judge_unit(wrote_size)[0], judge_unit(wrote_size)[1],
-                                                     judge_unit(self.filesize)[0], judge_unit(self.filesize)[1])
-                total_downloaded_show = '%.2f%s/%.2f%s' % (judge_unit(self.commandThread.wrote_size)[0],
-                                                           judge_unit(self.commandThread.wrote_size)[1],
-                                                     judge_unit(self.commandThread.mission_size)[0],
-                                                           judge_unit(self.commandThread.mission_size)[1])
+                downloaded_show = '%s/%s' % (formated_size(wrote_size),formated_size(self.filesize))
+                total_downloaded_show = '%s/%s' % (formated_size(self.commandThread.wrote_size),
+                                                   formated_size(self.commandThread.mission_size))
                 current_filename = os.path.basename(self.filename) +' '
                 sys.stdout.write(current_filename+downloaded_show +' | %.2f%%  >>>%s %s | %.2f%%' %
                                  (float(wrote_size / self.filesize * 100),
