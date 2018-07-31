@@ -83,7 +83,7 @@ def searchMeinv(keyword):
         if not os.path.exists(savePath2):
             os.makedirs(savePath2)
 
-        downloadGalary(html_url,conver_imag_url,int(parseNum(numText)),keyword,savePath2,startTime)
+        downloadGalary(html_url,conver_imag_url,parseNum(numText),keyword,savePath2,startTime)
 
 
 def getGallaryPage(url,keyword):
@@ -97,13 +97,16 @@ def getGallaryPage(url,keyword):
                 if str(p.text).find('模特姓名') != -1:
                     if p.find('a'):
                         target_url = p.find('a')['href']
-                        getModelPage(target_url, keyword)
+                        try:
+                            getModelPage(target_url, keyword)
+                        except OSError:
+                            print('保存出错 '+target_url)
                     else:
                         print('该模特作品较少，返回部分下载模式')
                         global all_result
                         all_result = False
                         searchMeinv(keyword)
-        except Exception:
+        except Exception as e:
             print('解析有问题')
     else:
         print('getGallaryPage '+ url +' bad response code: '+response.status_code)
@@ -120,8 +123,10 @@ def getModelPage(url,keyword):
         print('套图数：%d' % len(imgs_li))
         for li in imgs_li:
             html_url = li.find('a')['href']
+            print('URL  '+html_url)
             conver_imag_url = li.find('a').find('img')['src']
             title = li.find('p',attrs={'class':'p_title'}).text
+            title = str(title).replace('<','').replace('>','')
             numText = li.find('p').text
             num = parseNum(numText)
             print('%s %s张' % (newTitleName(title), num))
