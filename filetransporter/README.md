@@ -73,3 +73,18 @@ python3 ftclient.py -i 192.168.1.100 -p 9909 -f /users/Capton/desktop/test
 
 ### `效果`
 ![](resource/runclient.jpg) 
+
+## 注意
+运行接收端程序，需要一个能访问的地址，也即是说最好是局域网内进行文件传输工作，因为局域网本地ip都是可以直接访问的，若是在公共网络传输文件，必须知道接收方主机的公网ip和内网ip。
+
+例如我现在用到接收方主机是腾讯云的主机，内网ip是10.135.xxx.xxx,公网ip是111.120.xxx.xxx。该主机内，运行接收（服务）端程序
+
+```python
+python3 ftserver.py -i 10.135.xxx.xxx -d /home/ubuntu/downloads
+```
+
+而在你的主机运行发送（客户）端程序发送文件夹bilibili
+```python
+python3 ftclient.py -i 111.120.xxx.xxx -f /Users/capton/desktop/bilibili
+```
+因为腾讯云、阿里云等国内虚拟主机供应商是采用NAT地址转换对云主机进行地址分配的，所以按照我上面的步骤来运行两端程序才能连通

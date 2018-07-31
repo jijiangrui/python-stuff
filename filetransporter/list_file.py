@@ -29,7 +29,7 @@ class FileFinder:
        # 调用者控制的参数，若为False,则正常工作，若为True，则当recycle为False时遍历工作不阻塞快速完成，recycle为True时遍历工作阻塞
        self.off = False
 
-    # 文件（夹）找到时的回调函数
+    # 文件（夹）找到时的回调类
    class FinderCallback:
        # 找到文件夹
        def onFindDir(self,dir_path):
@@ -85,7 +85,7 @@ class FileFinder_Fast:
        # 文件（夹）路径下所有文件的总大小
        self.sum_size = 0
 
-    # 文件（夹）找到时的回调函数
+    # 文件（夹）找到时的回调类
    class FinderCallback:
        # 找到文件夹
        def onFindDir(self,dir_path):
