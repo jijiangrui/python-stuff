@@ -381,7 +381,6 @@ def args_menu():
             exit(1)
         elif action_index == '4':
             main_menu()
-
         elif action_index.lower() == 'exit':
             exit(1)
         else:

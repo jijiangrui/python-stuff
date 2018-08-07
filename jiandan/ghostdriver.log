@@ -1,0 +1,10 @@
+[INFO  - 2018-08-07T06:40:11.393Z] GhostDriver - Main - running on port 63581
+[INFO  - 2018-08-07T06:40:11.546Z] Session [bbc58810-9a0c-11e8-bda8-7ddf7ae013c4] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1","webSecurityEnabled":true}
+[INFO  - 2018-08-07T06:40:11.578Z] Session [bbc58810-9a0c-11e8-bda8-7ddf7ae013c4] - page.customHeaders:  - {}
+[INFO  - 2018-08-07T06:40:11.579Z] Session [bbc58810-9a0c-11e8-bda8-7ddf7ae013c4] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"2.1.1","driverName":"ghostdriver","driverVersion":"1.2.0","platform":"mac-unknown-64bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}}
+[INFO  - 2018-08-07T06:40:11.579Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: bbc58810-9a0c-11e8-bda8-7ddf7ae013c4
+[INFO  - 2018-08-07T06:45:11.406Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-08-07T06:50:11.424Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-08-07T06:55:11.435Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-08-07T07:00:11.445Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
+[INFO  - 2018-08-07T07:05:11.467Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
