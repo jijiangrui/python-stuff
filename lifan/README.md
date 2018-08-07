@@ -1,6 +1,12 @@
 # 岛国裡蕃爬虫、及其数据api输出服务
 ### 数据成果展示
 根据爬取的数据自制[接口api](http://111.230.231.107:5050/lifan)
+
+### 安装必备包
+```python
+pip3 install -r requirements.txt
+```
+
 ### 爬虫部分
 请详细阅读spider.py、models.py、stc.py等文件源码
 然后运行spider.py
