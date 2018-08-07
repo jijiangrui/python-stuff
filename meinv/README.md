@@ -1,5 +1,6 @@
 # 美女图片多线程下载
-
+### 代码下载地址
+https://github.com/Ccapton/python-stuff/archive/v1.0.2.zip
 ### 1、cd 到 meinv.py 所在目录，然后激活virtualenv虚拟环境：
 ```python
 source py3env/bin/activate
