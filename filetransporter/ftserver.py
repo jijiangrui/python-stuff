@@ -394,8 +394,7 @@ if __name__ == '__main__':
         host = args.host
         host_ok = True
     else:
-        myname = socket.getfqdn(socket.gethostname())
-        host = socket.gethostbyname(myname)
+        host = '0.0.0.0'
         host_ok = True
 
     if args.port and args.port > 0 :

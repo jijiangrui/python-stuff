@@ -45,7 +45,7 @@ def route_url(video_html_url):
     iframe2 = soup2.find('iframe',attrs={'id':'baiyug'})
     url3 = iframe2['src']
     header3 = Headers(url2)
-    print(url3)
+    #print(url3)
     try:
       response3 = requests.get(url3,headers=header3)
     except requests.exceptions.InvalidSchema:

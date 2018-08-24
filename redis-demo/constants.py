@@ -11,7 +11,7 @@
 #。 @Email   : chenweibin1125@foxmail.com     
 #。__________________________________________
 
-db_save_path = 'db'
+db_save_path = 'db/data'
 
 
 # http://list.iqiyi.com/www/1/28997----------2---24-1-1-iqiyi--.html

@@ -18,24 +18,6 @@ import json
 import time
 
 
-class IpLocationFinder:
-    def __init__(self,url):
-        self.url = url
-        self.headers = {
-            'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
-        }
-    def get_response(self):
-        return ''
-
-    def get_ip_address(self):
-        return '',''
-
-    def cost_time(self):
-        return 0.000000
-
-    def is_chinese_ip(self):
-        return False
-
 
 # ip 查询源 一
 # Request URL: http://ip.chinaz.com/getip.aspx
@@ -57,8 +39,14 @@ class IpLocationFinder:
 
 # User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36
 
-# http://ip.chinaz.com/getip.aspx
-class Finder1(IpLocationFinder):
+# http://ip.chinaz.com/getip.aspx 分析
+class IpLocationFinder1:
+    def __init__(self):
+        self.url = 'http://ip.chinaz.com/getip.aspx'
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
+        }
+
     def get_response(self):
         return  requests.get(self.url,headers = self.headers).content.decode(encoding='utf8')
 
@@ -107,24 +95,27 @@ class Finder1(IpLocationFinder):
 
 # 关键 <div id="result"><div class="well"><p>您现在的 IP：<code>183.12.236.117</code></p><p>所在地理位置：<code>广东省深圳市 电信</code></p><p>GeoIP: Shenzhen, Guangdong, China</p></div>
 
-# https://ip.cn/index.php  get 参数 id =
-class Finder2(IpLocationFinder):
-    def get_response(self):
-        # self.headers[':authority'] = 'ip.cn'
-        # self.headers[':method'] = 'GET'
-        # self.headers[':scheme'] = 'https'
+# https://ip.cn/index.php  get 参数 ip =
+class IpLocationFinder2:
+    def __init__(self):
+        self.url= 'https://ip.cn/index.php'
+        self.headers={
+            'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
+        }
+
+    def get_response(self,target_ip='45.63.124.188'):
         self.headers['cache-control'] = 'max-age=0'
         self.headers['referer'] = 'https://ip.cn/'
         self.headers['upgrade-insecure-requests'] = '1'
-        response = requests.get(self.url,headers = self.headers,params={'id':'45.63.124.188'})
+        response = requests.get(self.url,headers = self.headers,params={'ip':target_ip})
         if response.status_code == 200:
             return response.content
         return ''
 
-    def get_ip_address(self):
-        source = self.get_response()
+    def get_ip_address(self,target_ip='45.63.124.188'):
+        source = self.get_response(target_ip)
         soup = BeautifulSoup(source, 'html.parser')
-        print(source)
+        #print(source)
         ip_and_addr =  soup.find('div', attrs={'id': 'result'}).find_all('code')
         ip =ip_and_addr[0].text
         address = ip_and_addr[1].text
@@ -144,14 +135,14 @@ class Finder2(IpLocationFinder):
 
 
 def is_chinese_user():
-    locationFinder2 = Finder2('https://ip.cn/index.php')
+    locationFinder2 = IpLocationFinder2()
     result = locationFinder2.is_chinese_ip()
     return result
 
 
 
 if __name__ == '__main__':
-    print(is_chinese_user())
+    print(IpLocationFinder2().get_ip_address())
     #print('美国'.find('China'))
 
 

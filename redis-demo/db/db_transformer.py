@@ -13,5 +13,6 @@
 
 from db.db_executor import *
 
-def get_aqiyi_moviemodels_by_area(area,page,size):
-    return DbExecutor().query_aqiyiVmovieModel_by_area(area.encode(encoding='utf-8').decode(encoding='utf-8'),page,size)
+def get_aqiyi_moviemodels_by_area(area,page,size,all=False):
+    return DbExecutor().query_aqiyiVmovieModel_by_area(area.encode(encoding='utf-8').decode(encoding='utf-8'),page,size,all)
+
