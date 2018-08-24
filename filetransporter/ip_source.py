@@ -103,17 +103,23 @@ class IpLocationFinder2:
             'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
         }
 
-    def get_response(self,target_ip='45.63.124.188'):
+    def get_response(self,target_ip=None):
         self.headers['cache-control'] = 'max-age=0'
         self.headers['referer'] = 'https://ip.cn/'
         self.headers['upgrade-insecure-requests'] = '1'
-        response = requests.get(self.url,headers = self.headers,params={'ip':target_ip})
+        if target_ip:
+            response = requests.get(self.url,headers = self.headers,params={'ip':target_ip})
+        else:
+            response = requests.get(self.url, headers=self.headers)
         if response.status_code == 200:
             return response.content
         return ''
 
-    def get_ip_address(self,target_ip='45.63.124.188'):
-        source = self.get_response(target_ip)
+    def get_ip_address(self,target_ip=None):
+        if target_ip :
+            source = self.get_response(target_ip)
+        else:
+            source = self.get_response()
         soup = BeautifulSoup(source, 'html.parser')
         #print(source)
         ip_and_addr =  soup.find('div', attrs={'id': 'result'}).find_all('code')
