@@ -39,7 +39,7 @@ category_url = 'http://demo.lvmaojun.com/web07/index.php?category='
 '''
 Cookie 灰常重要，如果访问受阻了，请尝试用手机重新登录浏览app，以抓包获取你个人账号对应的cookie
 '''
-Cookie = 'web_client=android; web_temp=nhvojzyt7qqsodns83jc721533475196; web_id=164807; web_key=1bv1r3o6hl7xmab71ryu171533475256'
+Cookie = 'web_client=android; web_temp=4c099y7reggc4nwi3qre5s1536942308; web_id=164807; web_key=t8k8k4dwson1mt63aedk4v1536942368'
 UserAgent = 'Mozilla/5.0 (Linux; Android 7.1.2; MI 5X Build/N2G47H; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 ' \
             'Chrome/67.0.3396.87 Mobile Safari/537.36'
 
