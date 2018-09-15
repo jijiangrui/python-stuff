@@ -1,6 +1,7 @@
 # 岛国裡蕃爬虫、及其数据api输出服务
 ### 代码下载
-https://github.com/Ccapton/python-stuff/archive/v1.0.1.zip
+https://github.com/Ccapton/python-stuff/releases/download/lifan_1.1/lifan.zip
+
 ### 数据成果展示
 根据爬取的数据自制[接口api](http://111.230.231.107:5050/lifan)  个人站点：[岛国裡蕃Api](http://111.230.231.107:5050/lifan)
 

@@ -1,6 +1,7 @@
 # 煎蛋网女生图片爬虫
 ### 代码下载地址
-https://github.com/Ccapton/python-stuff/archive/v1.0.3.zip
+https://github.com/Ccapton/python-stuff/files/2266865/jiandan.zip
+
 ### 下载必要文件 PhantomJS
 文件下载地址 http://phantomjs.org/download.html，放置本文件jiandan.py同目录下
 ### 安装环境
