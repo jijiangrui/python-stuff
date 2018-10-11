@@ -3,7 +3,7 @@
 https://github.com/Ccapton/python-stuff/releases/download/lifan_1.1/lifan.zip
 
 ### 数据成果展示
-根据爬取的数据自制[接口api](http://111.230.231.107:5050/lifan)  个人站点：[岛国裡蕃Api](http://111.230.231.107:5050/lifan)
+根据爬取的数据自制[接口api](http://ccapton.fun/lifan)  个人站点：[岛国裡蕃Api](http://ccapton.fun/lifan)
 
 ### 安装必备包
 ```python
