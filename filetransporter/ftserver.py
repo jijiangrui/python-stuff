@@ -20,6 +20,12 @@ from util import dir_divider,anti_dir_divider,checkfile,formated_time,formated_s
 import time
 
 from language_words import languageSelecter
+ 
+python_version = sys.version
+if python_version.startswith('2.'):
+    python_version = '2'
+elif python_version.startswith('3.'):
+    python_version = '3'
 
 divider_arg  = ' _*_ ' # 指令内部的分隔符
 right_arrows = '>'*10  # 输出占位符
@@ -362,6 +368,10 @@ def dict(key):
     return languageSelecter.dict(key)
 
 if __name__ == '__main__':
+    
+    if python_version == '2':
+        reload(sys)  # python3解释器下可能会提示错误，没关系，因为只有python2运行本程序才会走到这步
+        sys.setdefaultencoding("utf-8")
 
     print_author_info(dict('ftsp'))
 
