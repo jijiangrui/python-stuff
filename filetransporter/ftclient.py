@@ -21,6 +21,12 @@ from util import relative_path,dir_divider,checkfile,formated_size,formated_time
 
 from  language_words import languageSelecter
 
+python_version = sys.version
+if python_version.startswith('2.'):
+    python_version = '2'
+elif python_version.startswith('3.'):
+    python_version = '3'
+
 divider_arg =  ' _*_ ' # 指令内部的分隔符
 right_arrows = '>'*10  # 输出占位符
 left_arrows = '<'*10   # 输出占位符
@@ -359,6 +365,9 @@ def print_author_info(program_name):
 
 if __name__ == '__main__':
     # python ft_client -f /Users/capton/desktop/test.mp4 -i 127.0.0.1 -p 5050'
+        if python_version == '2':
+        reload(sys)   
+        sys.setdefaultencoding("utf-8")
 
     print_author_info(dict('ftcp'))
 
