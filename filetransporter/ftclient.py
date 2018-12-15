@@ -365,7 +365,7 @@ def print_author_info(program_name):
 
 if __name__ == '__main__':
     # python ft_client -f /Users/capton/desktop/test.mp4 -i 127.0.0.1 -p 5050'
-        if python_version == '2':
+    if python_version == '2':
         reload(sys)   
         sys.setdefaultencoding("utf-8")
 
