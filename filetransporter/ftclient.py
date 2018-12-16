@@ -5,9 +5,8 @@
 #。  ftclient.py
 #。
 #。 @Time    : 2018/7/26 00:09
-#。 @Author  : capton
+#。 @Author  : ccapton
 #。 @Software: PyCharm
-#。 @Blog    : http://ccapton.cn
 #。 @Github  : https://github.com/ccapton
 #。 @Email   : chenweibin1125@foxmail.com
 #。__________________________________________
@@ -27,23 +26,22 @@ if python_version.startswith('2.'):
 elif python_version.startswith('3.'):
     python_version = '3'
 
-divider_arg =  ' _*_ ' # 指令内部的分隔符
-right_arrows = '>'*10  # 输出占位符
-left_arrows = '<'*10   # 输出占位符
+divider_arg =  ' _*_ '
+right_arrows = '>'*10
+left_arrows = '<'*10
 
-msg_index = 0 #指令顺序，次要内容
+msg_index = 0
 
-isCommandTConnected= False # 指令线程是否连接到接收端的标志位
+isCommandTConnected= False
 
-default_data_socket_port = 9997     # 默认的数据传输套接字端口号
-default_command_socket_port = 9998  # 默认的指令传输套接字端口号
+default_data_socket_port = 9997
+default_command_socket_port = 9998
 
-# 指令标识符
+
 COMMAND_CLOSE = '[COMMAND CLOSE]'
 COMMANE_MISSION_SIZE = '[COMMAND MISSION_SIZE]'
 COMMANE_FILE_INFO = '[COMMAND FILE_INFO]'
 
-# socket封装类，用于简化socket输出编码的str内容的步骤
 class Messenger:
     def __init__(self,socket):
         self.socket = socket
@@ -69,7 +67,7 @@ class Messenger:
         elif self.recev_debug:  print(dict('sin'))
         return None
 
-# 指令线程类
+
 class CommandThread(threading.Thread):
     def __init__(self, host=None, port=default_command_socket_port):
         threading.Thread.__init__(self)
@@ -79,11 +77,9 @@ class CommandThread(threading.Thread):
         self.messanger = None
         self.start_time = 0
 
-    # 设置任务大小
     def setMissionSize(self,mission_size):
         self.mission_size = mission_size
 
-    # 设置数据线程实例
     def setDataThread(self, server):
         self.dataThread = server
 
@@ -92,36 +88,36 @@ class CommandThread(threading.Thread):
         try:
             self.socket.connect((self.host, self.port))
             global isCommandTConnected
-            isCommandTConnected = True # 连接到指令线程了，标志位设为True
-            self.messanger = Messenger(self.socket) # 新建Messenger对象，供后续调用
+            isCommandTConnected = True
+            self.messanger = Messenger(self.socket)
             try:
                 command = self.messanger.recv_msg()
                 if self.working:
-                   self.start_time = time.time()  # 记录当下时间
+                   self.start_time = time.time()
                    print(command)
-                self.messanger.send_msg(COMMANE_MISSION_SIZE + divider_arg + str(self.mission_size)) # 发送本次任务的大小
-                # 此循环内，判断接收端发来的指令
+                self.messanger.send_msg(COMMANE_MISSION_SIZE + divider_arg + str(self.mission_size))
+
                 while self.working and command and len(command) > 0:
-                    if command.endswith('rootdir_create_ok'): # 根文件夹创建完毕
-                        self.dataThread.waitingCreateDir = False   # 文件寻找器开始工作前的阻塞标志，为False说明文件寻找器可以开始工作了
-                    elif command.endswith('file_transport_ok') or command.endswith('dir_create_ok'): # 文件（夹）传输（创建）完毕
-                        self.dataThread.filefinder.recycle = False  # 文件寻找器的工作可以进入下一个进度的阻塞标志，为False说明文件寻找器可以继续工作了
-                    elif command.endswith('file_existed'):  # 文件已存在，跳过此文件
-                        self.dataThread.filefinder.recycle = False # 同上
+                    if command.endswith('rootdir_create_ok'):
+                        self.dataThread.waitingCreateDir = False
+                    elif command.endswith('file_transport_ok') or command.endswith('dir_create_ok'):
+                        self.dataThread.filefinder.recycle = False
+                    elif command.endswith('file_existed'):
+                        self.dataThread.filefinder.recycle = False
                         print(dict('fe') + ' ' + command.split(divider_arg)[1])
-                        if self.dataThread.findfileOver:   # 判断指令线程findfileOver标志位，确定接收端是否发来文件已传输完毕的信息
+                        if self.dataThread.findfileOver:
                             self.send_command(COMMAND_CLOSE)
                             self.socket.close()
                             self.working = False
                             print(dict('cmct') + '%s' % formated_time(time.time() - self.start_time))
-                    elif command.endswith('ready'): # 接收端传来准备传输的指令，准备传输文件
+                    elif command.endswith('ready'):
                         self.dataThread.send_filedata()
-                    command = self.messanger.recv_msg()  # 阻塞以接收指令
+                    command = self.messanger.recv_msg()
                     if not self.working:
                         if sumsize == self.dataThread.sumsize:
                             print(right_arrows+dict('mc')+left_arrows)
                         self.socket.close()
-            except ConnectionResetError as e: # 若远端连接断开，则断开本地套接字
+            except ConnectionResetError as e:
                 self.working = False
                 if self.dataThread.filefinder:
                     self.dataThread.filefinder.finderCallback = None
@@ -131,7 +127,7 @@ class CommandThread(threading.Thread):
                 self.dataThread.socket.close()
                 print(right_arrows+dict('ci')+left_arrows)
                 print(' %s...' % dict('pttmoa'))
-            except OSError as e:     #若无法连接到接收端，则提示用户
+            except OSError as e:
                 print('%s(%s)' % (dict('nrth'),self.host))
             except Exception as e:
                 print(e)
@@ -147,7 +143,7 @@ class CommandThread(threading.Thread):
         if self.messanger:
             self.messanger.send_msg(msg)
 
-# 客户端线程类 ，在此处理数据套接字，并 和指令线程类CommandThread相互调用完成传输任务
+
 class Client(threading.Thread , FileFinder.FinderCallback):
     def __init__(self,host,port):
         threading.Thread.__init__(self)
@@ -161,16 +157,16 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         self.waitingCreateDir = True
         self.once = True
 
-    # 设置指令线程实例
+
     def setCommandThread(self, commandThread):
         self.commandThread = commandThread
 
-    # 设置要传送的文件（夹）路径
+
     def setFilePath(self,filepath):
         self.filepath = filepath
         self.rootpath = filepath
 
-    # 重写FileFinder.FinderCallback父类 onFindDir方法
+
     def onFindDir(self,dir_path):
         global msg_index
         msg_index += 1
@@ -182,9 +178,6 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                                          +str(-1)+divider_arg+
                                          str(msg_index))
 
-
-    # 重写FileFinder.FinderCallback父类 onFindFile
-    # 文件寻找器找到文件后就会调用此方法，在方法内：计算总任务大小
     def onFindFile(self,file_path,size):
         global msg_index
         msg_index += 1
@@ -231,7 +224,7 @@ class Client(threading.Thread , FileFinder.FinderCallback):
         elif not checkfile(self.filepath)[0]:
             print(dict('picf'))
 
-    # 连接到接收端
+
     def connect_to_server(self):
         self.socket = socket.socket()
         try:
@@ -255,17 +248,17 @@ class Client(threading.Thread , FileFinder.FinderCallback):
             print('%s(%s)' % (dict('nrth'),self.host))
         return False
 
-    # 发送文件数据
+
     def send_filedata(self):
-        readed_size = 0    # 已读的文件数据大小
+        readed_size = 0
         with open(self.filename,'rb') as f:
-            filedata = f.read(4096) # 读取文件数据内容
+            filedata = f.read(4096)
             while len(filedata) > 0 :
-                tempsize = len(filedata) # 实际读取到的文件数据大小
-                readed_size += tempsize  #  累加已读的文件数据大小
-                self.mission_read_size += tempsize # 累加任务完成大小
+                tempsize = len(filedata)
+                readed_size += tempsize
+                self.mission_read_size += tempsize
                 try:
-                   self.socket.send(filedata)  # 发送数据
+                   self.socket.send(filedata)
                    readed_show = '%s/%s' % (formated_size(readed_size),formated_size(self.filesize))
                    total_readed_show = '%s/%s' % (formated_size(self.mission_read_size),formated_size(sumsize))
                    current_filename = os.path.basename(self.filename) + ' '
@@ -282,24 +275,24 @@ class Client(threading.Thread , FileFinder.FinderCallback):
                             self.filefinder.off = True
                         print(right_arrows+dict('rcd')+left_arrows)
                         self.once = False
-                filedata = f.read(4096) # 读取文件数据内容
+                filedata = f.read(4096)
         print()
-        if  readed_size == self.filesize and readed_size == 0:   # 若当前读取的大小 = 文件大小，说明该文件传输完毕了
+        if  readed_size == self.filesize and readed_size == 0:
             print(os.path.basename(self.filename) + ' %s' % dict('fi') )
         print('—'*30)
-        if self.singFile: # 传输单个文件的情况
+        if self.singFile:
             self.commandThread.send_command(COMMAND_CLOSE)
             self.socket.close()
             self.commandThread.working = False
             print(dict('cmct') + '%s' % formated_time(time.time() - self.commandThread.start_time))
-        else:   # 传输文件夹的情况
-            if self.findfileOver:  # 判断指令线程findfileOver标志位，确定接收端是否发来文件已传输完毕的信息
-                self.commandThread.send_command(COMMAND_CLOSE) # 告诉接收端，这边数据套接字要断开了，要它那边也断开数据套接字
+        else:
+            if self.findfileOver:
+                self.commandThread.send_command(COMMAND_CLOSE)
                 self.socket.close()
                 self.commandThread.working = False
                 print(dict('cmct')+'%s' % formated_time(time.time() - self.commandThread.start_time))
 
-# 快速文件查找器回调类，用于计算文件（夹）内容大小
+
 class MyfinderCallback(FileFinder_Fast.FinderCallback):
     def __init__(self):
         self.sumsize = 0
